@@ -45,7 +45,7 @@ export default function BudgetClient({ initialItems }: Props) {
       map.set(key, prev);
     }
     // Sort by month
-    const sorted = Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+    const sorted = Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
     return sorted.map(([month, vals]) => ({
       month,
       income: Math.round(vals.income * 100) / 100,
