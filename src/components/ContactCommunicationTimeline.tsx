@@ -111,10 +111,10 @@ export default function ContactCommunicationTimeline({
       {/* Timeline */}
       {loading ? (
         <div className="text-center py-8 text-slate-500 text-sm">Loading communications...</div>
-      ) : filtered.length === 0 ? (
+   ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-slate-500">
-          <svg className="w-10 h-10 mx-auto mb-3 text-slate-600" fill="none" viewBox="  24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 8l7.89 5.26a2 2  014.22 l7.89-5.26M5 19h14a2 2  002-2V7a2 2  00-2-2H5a2 2  00-2 2v10a2 2  002 2z" />
+          <svg className="w-10 h-10 mx-auto mb-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           <p className="text-sm">No communications recorded yet.</p>
           <p className="text-xs text-slate-600 mt-1">Send an email to start the conversation history.</p>
