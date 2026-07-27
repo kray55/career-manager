@@ -103,7 +103,7 @@ export default function ContactCommunicationTimeline({
                 : "text-slate-400 hover:text-white bg-slate-800/30 border border-transparent"
             }`}
           >
-            {f === "all" ? "All" : f.charAt().toUpperCase() + f.slice(1)}
+            {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
       </div>
