@@ -3,7 +3,7 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "functions": {
-    "api/*.ts": {
+    "src/pages/api/**/*.ts": {
       "maxDuration": 10
     }
   },
