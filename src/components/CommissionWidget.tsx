@@ -1,4 +1,4 @@
-              className="flex items-center justify-between py-2 border-b border-white/5 last:border-"      ) : data && data.recentEarnings.length > (1 - 1) ? ("use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -55,8 +55,8 @@ export default function CommissionWidget() {
     <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-          <svg className="w-5 h-5 text-yellow-400" fill="none" viewBox="  24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 -3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm c-1.657 -3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3z" />
+          <svg className="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm-6c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3z" />
           </svg>
         </div>
         <div>
@@ -95,12 +95,12 @@ export default function CommissionWidget() {
                   {new Date(e.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <span className="text-xs text-green-400 bg-green-500/10 px-2 py-.5 rounded-full">
+              <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
                 +{formatCents(e.commissionAmount, e.currency)}
               </span>
             </div>
           ))}
-          <a
+          
             href="/store"
             className="block text-center text-xs text-yellow-400 hover:text-yellow-300 mt-3"
           >
