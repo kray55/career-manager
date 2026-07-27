@@ -1,0 +1,39 @@
+{
+  "default_settings": {
+    "global_cache_ttl": 300,
+    "max_fetch_retries": 3,
+    "retry_delay_seconds": 5,
+    "global_refresh_interval": 600
+  },
+  "monitored_domains": [
+    {
+      "domain": "jobs.partner.example",
+      "platform": "Careers Board",
+      "enabled": true,
+      "auth_type": "none",
+      "api_endpoints": [
+        {
+          "name": "New Applicants",
+          "url": "https://jobs.partner.example/feed.xml",
+          "cache_ttl": 300,
+          "trigger_keywords": ["new applicant"]
+        }
+      ]
+    },
+    {
+      "domain": "hr.internal.example",
+      "platform": "OrangeHRM",
+      "enabled": true,
+      "auth_type": "api_key",
+      "api_key_header": "X-API-Key",
+      "api_endpoints": [
+        {
+          "name": "Pending Leave Requests",
+          "url": "https://hr.internal.example/api/v2/leave/leave-requests",
+          "cache_ttl": 300,
+          "trigger_keywords": ["pending approval"]
+        }
+      ]
+    }
+  ]
+}

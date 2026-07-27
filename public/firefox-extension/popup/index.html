@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Career Manager - Save Bookmark</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; width: 320px; padding: 16px; }
+    h1 { font-size: 14px; font-weight: 600; color: #f8fafc; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    h1 svg { width: 18px; height: 18px; }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; font-size: 11px; color: #64748b; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, textarea { width: 100%; padding: 8px 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0; font-size: 12px; outline: none; }
+    input:focus, textarea:focus { border-color: #6366f1; }
+    textarea { resize: vertical; min-height: 40px; font-family: inherit; }
+    button { width: 100%; padding: 8px 16px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 4px; }
+    button:hover { background: linear-gradient(135deg, #818cf8, #6366f1); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status { margin-top: 8px; font-size: 11px; text-align: center; }
+    .status.success { color: #34d399; }
+    .status.error { color: #f87171; }
+    .footer { margin-top: 12px; padding-top: 8px; border-top: 1px solid #1e293b; font-size: 10px; color: #475569; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+    Career Manager
+  </h1>
+  <div id="form">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" placeholder="Software Engineer at Acme Corp" />
+    </div>
+    <div class="form-group">
+      <label for="url">URL</label>
+      <input type="url" id="url" placeholder="https://example.com/job" />
+    </div>
+    <div class="form-group">
+      <label for="description">Notes (optional)</label>
+      <textarea id="description" placeholder="Key qualifications, salary range..." rows="2"></textarea>
+    </div>
+    <button id="saveBtn">Save Bookmark</button>
+    <div id="status" class="status"></div>
+  </div>
+  <div class="footer">Career Manager Portal v1.0</div>
+
+  <script>
+    // Auto-populate from active tab
+    browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+      const tab = tabs[0];
+      if (tab) {
+        document.getElementById('title').value = tab.title || '';
+        document.getElementById('url').value = tab.url || '';
+      }
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const title = document.getElementById('title').value.trim();
+      const url = document.getElementById('url').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const statusEl = document.getElementById('status');
+      const btn = document.getElementById('saveBtn');
+
+      if (!title || !url) { statusEl.textContent = 'Title and URL are required.'; statusEl.className = 'status error'; return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      statusEl.textContent = '';
+
+      try {
+        // Get saved API URL from storage, or prompt
+        const { apiUrl } = await browser.storage.sync.get('apiUrl');
+        let baseUrl = apiUrl;
+        if (!baseUrl) {
+          baseUrl = prompt('Enter your Career Manager portal URL:', 'https://your-portal.com');
+          if (!baseUrl) { btn.disabled = false; btn.textContent = 'Save Bookmark'; return; }
+          await browser.storage.sync.set({ apiUrl: baseUrl });
+        }
+
+        const res = await fetch(baseUrl.replace(/\/+$/, '') + '/api/bookmarks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, url, description }),
+          credentials: 'include'
+        });
+
+        if (res.ok) { statusEl.textContent = '✓ Bookmark saved!'; statusEl.className = 'status success'; }
+        else { const err = await res.json(); throw new Error(err.error || 'Failed'); }
+      } catch (err) { statusEl.textContent = '✗ Error: ' + err.message; statusEl.className = 'status error'; }
+      finally { btn.disabled = false; btn.textContent = 'Save Bookmark'; }
+    });
+  </script>
+</body>
+</html>

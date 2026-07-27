@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.env
+.env.local
+.env*.local
+*.log
+.DS_Store
+node-v16.20.2-linux-x64/
+node-v18.20.4-linux-x64/
+node-v20.11.0-linux-x64/
+backup/
+package.json.bak
+.next/

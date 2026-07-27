@@ -1,0 +1,46 @@
+{
+  "manifest_version": 2,
+  "name": "Career Manager Live RSS Hub",
+  "version": "2.0.0",
+  "description": "Real-time RSS intelligence aggregator with system notifications. Monitors domains, fetches feeds, and pushes alerts.",
+  "icons": { "16": "icon-16.png", "48": "icon-48.png", "128": "icon-128.png" },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "notifications",
+    "alarms",
+    "webNavigation",
+    "unlimitedStorage",
+    "https://*/"
+  ],
+  "browser_action": {
+    "default_icon": "icon-48.png",
+    "default_title": "Career Manager RSS Hub",
+    "default_popup": "popup/index.html"
+  },
+  "sidebar_action": {
+    "default_icon": "icon-48.png",
+    "default_title": "RSS Intelligence Feed",
+    "default_panel": "sidebar/index.html",
+    "open_at_install": false
+  },
+  "background": {
+    "scripts": [
+      "feed-cache.js",
+      "notification-preferences.js",
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "popup/index.html",
+    "open_in_tab": false
+  }
+}
