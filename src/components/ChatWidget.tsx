@@ -124,7 +124,7 @@ export default function ChatWidget() {
           )}
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {messages.length ===  && (
+            {messages.length === 0 && (
               <div className="text-center py-8">
                 <p className="text-slate-500 text-sm">No messages yet</p>
                 <p className="text-slate-600 text-xs mt-1">Start the conversation!</p>
