@@ -101,9 +101,7 @@ export default function CommissionWidget() {
             </div>
           ))}
           
-            href="/store"
-            className="block text-center text-xs text-yellow-400 hover:text-yellow-300 mt-3"
-          >
+        <a href="/store" className="block text-center text-xs text-yellow-400 hover:text-yellow-300 mt-3">
             View Store &rarr;
           </a>
         </div>
