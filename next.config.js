@@ -4,6 +4,11 @@ const nextConfig = {
   swcMinify: false,
   images: { domains: ['localhost'] },
   webpack: (config, { isServer }) => {
+    // next-auth's newer patch releases reference next/headers (an App
+    // Router-only API) even in code paths a Pages Router app never
+    // reaches at runtime. Webpack still tries to statically resolve it,
+    // so stub it out — safe since this project has no app/ directory.
+    config.resolve.fallback = { ...config.resolve.fallback, 'next/headers': false };
     config.optimization.minimize = false;
     config.optimization.concatenateModules = false;
     config.optimization.splitChunks = {
