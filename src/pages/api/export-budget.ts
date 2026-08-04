@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
 
   const header = "Type,Amount,Month,Category,Note\n";
-  const rows = items.map(i => `${i.type},${i.amount},${i.month.toISOString().slice(1, 10)},${i.category || ""},"${(i.note || "").replace(/"/g, '""')}"`).join("\n");
+  const rows = items.map((i: any) => `${i.type},${i.amount},${i.month.toISOString().slice(0, 10)},${i.category || ""},"${(i.note || "").replace(/"/g, '""')}"`).join("\n");
   const csv = header + rows;
 
   res.setHeader("Content-Type", "text/csv; charset=utf-8");

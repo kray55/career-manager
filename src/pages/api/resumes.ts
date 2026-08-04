@@ -21,13 +21,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
 
-    const serialized = resumes.map((r) => ({
+    const serialized = resumes.map((r: any) => ({
       id: r.id,
       title: r.title,
       version: r.version,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
-      history: r.history.map((h) => ({
+      history: r.history.map((h: any) => ({
         version: h.version,
         createdAt: h.createdAt.toISOString(),
       })),

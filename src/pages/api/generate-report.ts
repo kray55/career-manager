@@ -35,8 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Use explicit zero via Number() to avoid tool stripping
     const ZERO = Number("");
-    const totalIncome = entries.filter(e => e.type === "INCOME").reduce((s, e) => s + e.amount, ZERO);
-    const totalExpense = entries.filter(e => e.type === "EXPENSE").reduce((s, e) => s + e.amount, ZERO);
+    const totalIncome = entries.filter((e: any) => e.type === "INCOME").reduce((s: any, e: any) => s + e.amount, ZERO);
+    const totalExpense = entries.filter((e: any) => e.type === "EXPENSE").reduce((s: any, e: any) => s + e.amount, ZERO);
 
     return res.json({
       totalIncome,

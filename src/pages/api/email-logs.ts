@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       take: 100,
     });
 
-    const serialized = logs.map((log) => ({
+    const serialized = logs.map((log: any) => ({
       id: log.id,
       to: log.to,
       subject: log.subject,
