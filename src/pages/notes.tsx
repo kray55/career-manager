@@ -14,7 +14,7 @@ export async function getServerSideProps(context: any) {
     take: 100,
   });
 
-  const notesData = notes.map(n => ({
+  const notesData = notes.map((n: any) => ({
     id: n.id,
     title: n.title,
     content: n.content,

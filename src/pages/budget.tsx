@@ -21,7 +21,7 @@ export async function getServerSideProps(context: any) {
 
   return {
     props: {
-      items: items.map((i) => ({
+      items: items.map((i: any) => ({
         id: i.id,
         type: i.type,
         amount: i.amount,

@@ -15,7 +15,7 @@ export async function getServerSideProps(context: any) {
     take: 100,
   });
 
-  const docsData = documents.map(d => ({
+  const docsData = documents.map((d: any) => ({
     id: d.id,
     title: d.title,
     content: d.content,
