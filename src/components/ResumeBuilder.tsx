@@ -1,4 +1,4 @@
-{(data.experience.length === ) && ("use client";
+"use client";
 
 import { useState, useCallback } from "react";
 import toast from "react-hot-toast";
@@ -524,7 +524,7 @@ export default function ResumeBuilder({
               )}
 
               {/* Experience */}
-              {data.experience.length >  && (
+              {data.experience.length > 0 && (
                 <div className="mb-6">
                   <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">Experience</h2>
                   {data.experience.map((exp) => (
@@ -538,7 +538,7 @@ export default function ResumeBuilder({
                           {exp.startDate} – {exp.current ? "Present" : exp.endDate}
                         </p>
                       </div>
-                      {exp.bullets.filter((b) => b.trim()).length >  && (
+                      {exp.bullets.filter((b) => b.trim()).length > 0 && (
                         <ul className="mt-2 list-disc list-inside text-sm text-gray-600 space-y-1">
                           {exp.bullets.filter((b) => b.trim()).map((bullet, idx) => (
                             <li key={idx}>{bullet}</li>
@@ -551,7 +551,7 @@ export default function ResumeBuilder({
               )}
 
               {/* Education */}
-              {data.education.length >  && (
+              {data.education.length > 0 && (
                 <div className="mb-6">
                   <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">Education</h2>
                   {data.education.map((edu) => (
@@ -564,7 +564,7 @@ export default function ResumeBuilder({
               )}
 
               {/* Skills */}
-              {data.skills.length >  && (
+              {data.skills.length > 0 && (
                 <div>
                   <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700 mb-3">Skills</h2>
                   <div className="flex flex-wrap gap-2">

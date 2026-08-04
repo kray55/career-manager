@@ -89,10 +89,10 @@ export default function ChatWidget() {
         className={`fixed bottom-4 right-4 z-50 w-14 h-14 rounded-full shadow-xl transition-all ${
           isOpen ? "bg-red-500 rotate-45" : "bg-gradient-to-r from-primary-500 to-primary-700"
         }`} title={isOpen ? "Close" : "Chat"}>
-        <svg className="w-6 h-6 text-white mx-auto" fill="none" viewBox="  24 24" stroke="currentColor">
+        <svg className="w-6 h-6 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           {isOpen
             ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2  00-2 2v3l4-1.5V17h2a2 2  012 2v3l4-1.5V19a2 2  00-2-2h-2a2 2  01-2-2V8h12V5a2 2  00-2-2H7a2 2  00-2 2v8h12" />
+            : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 00-2 2v3l4-1.5V17h2a2 2 0 012 2v3l4-1.5V19a2 2 0 00-2-2h-2a2 2 0 01-2-2V8h12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v8h12" />
           }
         </svg>
       </button>
@@ -106,7 +106,7 @@ export default function ChatWidget() {
               <span className="text-xs text-slate-500">({messages.length})</span>
             </div>
             <button onClick={() => setShowNotify(!showNotify)} className="p-1.5 text-slate-500 hover:text-white rounded-lg hover:bg-slate-700 text-xs" title="Notify">
-              <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2  014.22 l7.89-5.26M5 19h14a2 2  002-2V7a2 2  00-2-2H5a2 2  00-2 2v10a2 2  002 2z" /></svg>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
             </button>
           </div>
 
@@ -155,7 +155,7 @@ export default function ChatWidget() {
                 className="flex-1 px-3 py-2 bg-slate-800 border border-white/10 rounded-xl text-white text-sm placeholder-slate-600 focus:outline-none focus:border-primary-500/50 disabled:opacity-50" />
               <button onClick={sendMessage} disabled={!input.trim() || !isConnected}
                 className="px-4 py-2 bg-primary-500/20 text-primary-300 rounded-xl hover:bg-primary-500/30 border border-primary-500/30 disabled:opacity-50">
-                <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m 7 7l-7-7m-7 7l7-7" /></svg>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m 7 7l-7-7m-7 7l7-7" /></svg>
               </button>
             </div>
             {!isConnected && <p className="text-xs text-red-400 mt-1">Disconnected...</p>}

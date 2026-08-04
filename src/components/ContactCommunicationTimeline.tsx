@@ -83,9 +83,9 @@ export default function ContactCommunicationTimeline({
   const filtered = filter === "all" ? events : events.filter((e) => e.type === filter);
 
   const statusBadge = (status?: string) => {
-    if (status === "SENT") return <span className="px-2 py-.5 text-xs bg-green-500/20 text-green-300 rounded-full">Sent</span>;
-    if (status === "FAILED") return <span className="px-2 py-.5 text-xs bg-red-500/20 text-red-300 rounded-full">Failed</span>;
-    if (status === "PENDING") return <span className="px-2 py-.5 text-xs bg-yellow-500/20 text-yellow-300 rounded-full">Pending</span>;
+    if (status === "SENT") return <span className="px-2 py-0.5 text-xs bg-green-500/20 text-green-300 rounded-full">Sent</span>;
+    if (status === "FAILED") return <span className="px-2 py-0.5 text-xs bg-red-500/20 text-red-300 rounded-full">Failed</span>;
+    if (status === "PENDING") return <span className="px-2 py-0.5 text-xs bg-yellow-500/20 text-yellow-300 rounded-full">Pending</span>;
     return null;
   };
 

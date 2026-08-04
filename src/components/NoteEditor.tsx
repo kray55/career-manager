@@ -52,13 +52,13 @@ export default function NoteEditor({
     ],
     content: initialContent || "",
     editable,
-    onUpdate: ({ editor: ed }) => { onChange?.(ed.getHTML()); },
+    onUpdate: ({ editor: ed }: any) => { onChange?.(ed.getHTML()); },
     editorProps: {
       attributes: {
         class: "prose prose-invert max-w-none focus:outline-none min-h-[200px] px-4 py-3 text-slate-100",
       },
     },
-  });
+  } as any) as any;
 
   useEffect(() => { if (editor) setIsReady(true); }, [editor]);
 
@@ -83,7 +83,7 @@ export default function NoteEditor({
   );
 
   const IC = ({ d }: { d: string }) => (
-    <svg className="w-4 h-4" viewBox="  24 24" fill="currentColor"><path d={d} /></svg>
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d={d} /></svg>
   );
 
   const D = () => <span className="w-px h-5 bg-slate-700 mx-1" />;

@@ -61,8 +61,8 @@ export default function ContactDetailClient({ user, contactId, contactEmail }: P
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="  24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4  11-8  4 4  018 zM12 14a7 7  00-7 7h14a7 7  00-7-7z" />
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <span className="text-white font-semibold">Contact</span>
@@ -106,8 +106,8 @@ export default function ContactDetailClient({ user, contactId, contactEmail }: P
                   onClick={() => setShowSendEmail(true)}
                   className="px-4 py-2 bg-primary-500/20 text-primary-300 text-sm rounded-lg hover:bg-primary-500/30 border border-primary-500/30 flex items-center gap-2"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2  014.22 l7.89-5.26M5 19h14a2 2  002-2V7a2 2  00-2-2H5a2 2  00-2 2v10a2 2  002 2z" />
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   Send Email
                 </button>
@@ -135,7 +135,7 @@ export default function ContactDetailClient({ user, contactId, contactEmail }: P
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-white">Send Email</h3>
                     <button onClick={() => setShowSendEmail(false)} className="text-slate-400 hover:text-white">
-                      <svg className="w-5 h-5" fill="none" viewBox="  24 24" stroke="currentColor">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>

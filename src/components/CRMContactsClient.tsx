@@ -100,10 +100,10 @@ export default function CRMContactsClient({ user, initialContacts }: Props) {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4  11-8  4 4  018  7zM12 14a7 7  00-7 7h14a7 7  00-7-7z" /></svg>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
               </div>
               <span className="text-white font-semibold">CRM Contacts</span>
-              <span className="text-xs text-slate-500 bg-slate-800 px-2 py-.5 rounded-full">{user.tenantSlug}</span>
+              <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{user.tenantSlug}</span>
             </div>
             <div className="flex items-center gap-4">
               <Link href="/dashboard" className="text-sm text-slate-300 hover:text-white">Dashboard</Link>
@@ -134,7 +134,7 @@ export default function CRMContactsClient({ user, initialContacts }: Props) {
                   <div className="px-4 py-3 border-b border-white/5">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-white">{col.label}</h3>
-                      <span className="text-xs text-slate-500 bg-slate-800 px-2 py-.5 rounded-full">{columnContacts.length}</span>
+                      <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{columnContacts.length}</span>
                     </div>
                   </div>
                   <Droppable droppableId={col.key}>
@@ -163,7 +163,7 @@ export default function CRMContactsClient({ user, initialContacts }: Props) {
                                 <div className="flex items-start justify-between mb-1">
                                   <h4 className="text-sm font-medium text-white truncate">{contact.name || "Unnamed"}</h4>
                                   <button onClick={() => handleDelete(contact.id)} className="p-1 text-slate-600 hover:text-red-400 opacity- group-hover:opacity-100">
-                                    <svg className="w-3 h-3" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2  0116.138 21H7.862a2 2  01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1  00-1-1h-4a1 1  00-1 1v3M4 7h16" /></svg>
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                   </button>
                                 </div>
                                 <p className="text-xs text-slate-400 truncate">{contact.email}</p>

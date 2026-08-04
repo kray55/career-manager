@@ -218,7 +218,7 @@ export default function BudgetClient({ initialItems }: Props) {
                 {items.map((i) => (
                   <tr key={i.id} className="border-t border-white/5 hover:bg-white/5">
                     <td className="p-3">
-                      <span className={`text-xs font-medium px-2 py-.5 rounded-full ${i.type === "INCOME" ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"}`}>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${i.type === "INCOME" ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"}`}>
                         {i.type}
                       </span>
                     </td>

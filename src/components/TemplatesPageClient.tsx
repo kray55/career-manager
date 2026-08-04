@@ -115,8 +115,8 @@ export default function TemplatesPageClient({ user }: Props) {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="  24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 a2 2  01-2 2H7a2 2  01-2-2m14 V7a2 2  01-2-2H7a2 2  01-2 2v4" />
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0V7a2 2 0 01-2-2H7a2 2 0 01-2 2v4" />
                 </svg>
               </div>
               <span className="text-white font-semibold">Templates</span>
@@ -146,14 +146,14 @@ export default function TemplatesPageClient({ user }: Props) {
                 className="col-span-12 sm:col-span-6 lg:col-span-4 bg-white/5 border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all group cursor-pointer"
                 onClick={() => setSelectedTemplate(tmpl)}>
                 <div className={`w-10 h-10 ${c.bg} rounded-xl flex items-center justify-center mb-4`}>
-                  <svg className={`w-5 h-5 ${c.text}`} fill="none" viewBox="  24 24" stroke="currentColor">
+                  <svg className={`w-5 h-5 ${c.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tmpl.icon} />
                   </svg>
                 </div>
                 <h3 className="text-white font-semibold mb-1">{tmpl.title}</h3>
                 <p className="text-xs text-slate-400 mb-4 line-clamp-2">{tmpl.description}</p>
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs px-2 py-.5 rounded-full capitalize ${c.text} ${c.bg}`}>{tmpl.type === "coverLetter" ? "Cover Letter" : tmpl.type}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${c.text} ${c.bg}`}>{tmpl.type === "coverLetter" ? "Cover Letter" : tmpl.type}</span>
                   <button onClick={(e) => { e.stopPropagation(); useTemplate(tmpl); }}
                     disabled={creating}
                     className={`ml-auto text-xs px-3 py-1.5 bg-gradient-to-r ${c.gradient} text-white rounded-lg opacity- group-hover:opacity-100 transition-opacity disabled:opacity-50`}>
@@ -181,7 +181,7 @@ export default function TemplatesPageClient({ user }: Props) {
                   </button>
                   <button onClick={() => setSelectedTemplate(null)}
                     className="p-1.5 text-slate-500 hover:text-white rounded-lg hover:bg-slate-800">
-                    <svg className="w-5 h-5" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>
               </div>

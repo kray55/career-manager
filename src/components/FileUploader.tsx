@@ -30,7 +30,7 @@ export default function FileUploader({
   const [uploadedName, setUploadedName] = useState<string | null>(null);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[];
+    const file = acceptedFiles[0];
     if (!file) return;
 
     // Validate size
@@ -81,13 +81,13 @@ export default function FileUploader({
         <input {...getInputProps()} />
         <div className="flex flex-col items-center gap-2">
           {isUploading ? (
-            <svg className="animate-spin h-8 w-8 text-primary-400" viewBox="  24 24">
+            <svg className="animate-spin h-8 w-8 text-primary-400" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8  018-8VC5.373   5.373  12h4zm2 5.291A7.962 7.962  014 12Hc 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
           ) : (
-            <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="  24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4  01-.88-7.903A5 5  0115.9 6L16 6a5 5  019 9H7z" />
+            <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 010 9H7z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 16v-4m   2.5l-2.5-2.5M10 11.5l2.5 2.5" />
             </svg>
           )}
@@ -104,8 +104,8 @@ export default function FileUploader({
       {uploadedUrl && uploadedName && (
         <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg p-3">
           <div className="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center">
-            <svg className="w-4 h-4 text-primary-400" fill="none" viewBox="  24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2  01-2-2V5a2 2  012-2h5.586a1 1  01.707.293l5.414 5.414a1 1  01.293.707V19a2 2  01-2 2z" />
+            <svg className="w-4 h-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
           <div className="flex-1 min-w-">

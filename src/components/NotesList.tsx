@@ -106,15 +106,15 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
       {/* Search + Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" viewBox="  24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7  11-14  7 7  0114 z" />
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search notes by title, content, or tags..."
             className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm" />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
-              <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           )}
         </div>
@@ -132,12 +132,12 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
           <button onClick={() => setMode("list")}
             className={`p-2 rounded-lg transition-colors ${mode === "list" ? "bg-primary-600/20 text-primary-300" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
             title="List view">
-            <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <button onClick={() => setMode("grid")}
             className={`p-2 rounded-lg transition-colors ${mode === "grid" ? "bg-primary-600/20 text-primary-300" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
             title="Grid view">
-            <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h6v6H4zm10 h6v6h-6zM4 14h6v6H4zm10 h6v6h-6z" /></svg>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h6v6H4zm10 h6v6h-6zM4 14h6v6H4zm10 h6v6h-6z" /></svg>
           </button>
         </div>
       </div>
@@ -149,10 +149,10 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
       </p>
 
       {/* Empty State */}
-      {filtered.length ===  ? (
+      {filtered.length === 0 ? (
         <div className="text-center py-20">
-          <svg className="w-20 h-20 text-slate-700 mx-auto mb-4" fill="none" viewBox="  24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M11 5H6a2 2  00-2 2v11a2 2  002 2h11a2 2  002-2v-5m-1.414-9.414a2 2  112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          <svg className="w-20 h-20 text-slate-700 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
           <p className="text-slate-400 text-lg mb-2">
             {searchQuery ? "No notes match your search" : filter === "archived" ? "No archived notes" : "No notes yet"}
@@ -170,7 +170,7 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
               <div className="flex-1 min-w-">
                 <div className="flex items-center gap-2 mb-1">
                   {note.pinned && (
-                    <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-" fill="currentColor" viewBox="  24 24">
+                    <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
                     </svg>
                   )}
@@ -178,16 +178,16 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
                     {note.title || "Untitled Note"}
                   </Link>
                   {note.archived && (
-                    <span className="text-xs bg-slate-800 text-slate-500 px-1.5 py-.5 rounded">Archived</span>
+                    <span className="text-xs bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded">Archived</span>
                   )}
                 </div>
                 <p className="text-xs text-slate-400 line-clamp-1 mb-1">
-                  {stripHtml(note.content).substring(, 120) || "No content"}
+                  {stripHtml(note.content).substring(0, 120) || "No content"}
                 </p>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs text-slate-600">{formatDate(note.updatedAt)}</span>
-                  {note.tags.slice(, 3).map(t => (
-                    <span key={t} className="text-xs bg-slate-800/50 text-slate-500 px-1.5 py-.5 rounded-full">{t}</span>
+                  {note.tags.slice(0, 3).map(t => (
+                    <span key={t} className="text-xs bg-slate-800/50 text-slate-500 px-1.5 py-0.5 rounded-full">{t}</span>
                   ))}
                   {note.jobUrl && (
                     <a href={note.jobUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-500 hover:text-primary-400 truncate max-w-[150px]">
@@ -200,24 +200,24 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
                 <button onClick={() => togglePin(note)}
                   className={`p-1.5 rounded-lg transition-colors ${note.pinned ? "text-yellow-400 hover:text-yellow-300" : "text-slate-600 hover:text-yellow-400 hover:bg-yellow-500/10"}`}
                   title={note.pinned ? "Unpin" : "Pin"}>
-                  <svg className="w-4 h-4" fill={note.pinned ? "currentColor" : "none"} viewBox="  24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill={note.pinned ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
                   </svg>
                 </button>
                 <button onClick={() => toggleArchive(note)}
                   className="p-1.5 rounded-lg text-slate-600 hover:text-blue-400 hover:bg-blue-500/10"
                   title={note.archived ? "Restore" : "Archive"}>
-                  <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2  110-4h14a2 2  110 4M5 8v10a2 2  002 2h10a2 2  002-2V8m-9 4h4" />
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
                 </button>
                 <button onClick={() => handleDelete(note.id)} disabled={isDeleting === note.id}
                   className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10"
                   title="Delete">
                   {isDeleting === note.id ? (
-                    <svg className="animate-spin w-4 h-4" viewBox="  24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8  018-8VC5.373   5.373  12h4zm2 5.291A7.962 7.962  014 12Hc 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
                   ) : (
-                    <svg className="w-4 h-4" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2  0116.138 21H7.862a2 2  01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1  00-1-1h-4a1 1  00-1 1v3M4 7h16" /></svg>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   )}
                 </button>
               </div>
@@ -232,21 +232,21 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
               className="col-span-12 sm:col-span-6 lg:col-span-4 bg-white/5 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all group">
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex items-center gap-1.5 min-w- flex-1">
-                  {note.pinned && <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-" fill="currentColor" viewBox="  24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>}
+                  {note.pinned && <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>}
                   <Link href={`/notes?id=${note.id}`} className="text-sm font-medium text-white hover:text-primary-400 transition-colors truncate block">{note.title || "Untitled Note"}</Link>
                 </div>
                 <div className="flex items-center gap-1 opacity- group-hover:opacity-100 transition-opacity flex-shrink-">
                   <button onClick={() => togglePin(note)} className={`p-1 rounded-lg ${note.pinned ? "text-yellow-400" : "text-slate-600 hover:text-yellow-400"}`}>
-                    <svg className="w-3.5 h-3.5" fill={note.pinned ? "currentColor" : "none"} viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>
+                    <svg className="w-3.5 h-3.5" fill={note.pinned ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>
                   </button>
                   <button onClick={() => handleDelete(note.id)} disabled={isDeleting === note.id} className="p-1 rounded-lg text-slate-600 hover:text-red-400">
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="  24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2  0116.138 21H7.862a2 2  01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1  00-1-1h-4a1 1  00-1 1v3M4 7h16" /></svg>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </button>
                 </div>
               </div>
-              <p className="text-xs text-slate-400 line-clamp-3 mb-3">{stripHtml(note.content).substring(, 200) || "No content"}</p>
+              <p className="text-xs text-slate-400 line-clamp-3 mb-3">{stripHtml(note.content).substring(0, 200) || "No content"}</p>
               <div className="flex items-center gap-2 flex-wrap">
-                {note.tags.slice(, 2).map(t => <span key={t} className="text-xs bg-slate-800 text-slate-500 px-1.5 py-.5 rounded-full">{t}</span>)}
+                {note.tags.slice(0, 2).map(t => <span key={t} className="text-xs bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-full">{t}</span>)}
                 <span className="text-xs text-slate-600 ml-auto">{formatDate(note.updatedAt)}</span>
               </div>
             </div>

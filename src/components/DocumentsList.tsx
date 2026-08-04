@@ -98,8 +98,8 @@ export default function DocumentsList({ documents, onUpdate }: Props) {
       {/* Filters */}
       <div className="flex flex-col gap-3 mb-6">
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" viewBox="  24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7  11-14  7 7  0114 z" />
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search documents..."
@@ -132,8 +132,8 @@ export default function DocumentsList({ documents, onUpdate }: Props) {
       {/* Empty State */}
       {filtered.length === 0 ? (
         <div className="text-center py-16">
-          <svg className="w-16 h-16 text-slate-700 mx-auto mb-4" fill="none" viewBox="  24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2  01-2-2V5a2 2  012-2h5.586a1 1  01.707.293l5.414 5.414a1 1  01.293.707V19a2 2  01-2 2z" />
+          <svg className="w-16 h-16 text-slate-700 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           <p className="text-slate-400 text-lg mb-2">{searchQuery ? "No documents match" : "No documents yet"}</p>
           <p className="text-slate-600 text-sm">{searchQuery ? "Try a different search" : "Create your first document"}</p>
@@ -153,7 +153,7 @@ export default function DocumentsList({ documents, onUpdate }: Props) {
                     doc.type === "resume" ? "text-green-400" :
                     doc.type === "coverLetter" ? "text-blue-400" :
                     doc.type === "document" ? "text-primary-400" : "text-slate-400"
-                  }`} fill="none" viewBox="  24 24" stroke="currentColor">
+                  }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={TYPE_ICONS[doc.type] || TYPE_ICONS.other} />
                   </svg>
                 </div>
@@ -166,31 +166,31 @@ export default function DocumentsList({ documents, onUpdate }: Props) {
               </div>
 
               <p className="text-xs text-slate-400 line-clamp-2 mb-3">
-                {stripHtml(doc.content).substring(, 150) || "No content"}
+                {stripHtml(doc.content).substring(0, 150) || "No content"}
               </p>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs px-2 py-.5 rounded-full capitalize ${STATUS_COLORS[doc.status] || "text-slate-500 bg-slate-800"}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${STATUS_COLORS[doc.status] || "text-slate-500 bg-slate-800"}`}>
                     {doc.status}
                   </span>
                   {doc.aiGenerated && (
-                    <span className="text-xs text-purple-400 bg-purple-500/10 px-1.5 py-.5 rounded-full">AI</span>
+                    <span className="text-xs text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full">AI</span>
                   )}
                 </div>
                 <div className="flex items-center gap-1 opacity- group-hover:opacity-100 transition-opacity">
                   <button onClick={() => toggleStatus(doc)}
                     className="p-1.5 rounded-lg text-slate-600 hover:text-blue-400 hover:bg-blue-500/10"
                     title="Toggle status">
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="  24 24" stroke="currentColor">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001  004.582 9m H9m11 11v-5h-.581m a8.003 8.003  012.419-6.836m A8.001 8.001  002.418 5m  11H15" />
                     </svg>
                   </button>
                   <button onClick={() => handleDelete(doc.id)} disabled={isDeleting === doc.id}
                     className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10"
                     title="Delete">
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="  24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2  0116.138 21H7.862a2 2  01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1  00-1-1h-4a1 1  00-1 1v3M4 7h16" />
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
                 </div>
