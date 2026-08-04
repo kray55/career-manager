@@ -58,9 +58,9 @@ export async function downloadDocument({ title, content, format, filename }: Exp
   };
   
   const safeName = (filename || title || "document")
-    .replace(/[^a-zA-Z-9-_ ]/g, "")
+    .replace(/[^a-zA-Z0-9_ ]/g, "")
     .replace(/\s+/g, "_")
-    .substring(, 50);
+    .substring(0, 50);
   
   downloadBlob(blob, `${safeName}.${extMap[format]}`);
 }

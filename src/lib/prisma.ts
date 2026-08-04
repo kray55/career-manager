@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
@@ -8,7 +8,7 @@ function createPrismaClient(): PrismaClient {
   });
 
   // Multi-Tenant Middleware - injects tenantId from session
-  client.$use(async (params, next) => {
+  client.$use(async (params: Prisma.MiddlewareParams, next: (params: Prisma.MiddlewareParams) => Promise<any>) => {
     if (params.model === "Tenant") return next(params);
 
     const scoped = ["User", "Account", "Session", "Bookmark", "Note", "Document", "Resume", "ResumeHistory", "EmailLog", "ChatMessage", "Contact"];
