@@ -70,6 +70,7 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.17",
+    "dotenv": "^16.4.5",
     "postcss": "^8.4.33",
     "prisma": "^7.9.1",
     "tailwindcss": "^3.4.1",
