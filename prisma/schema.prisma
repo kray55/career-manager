@@ -41,6 +41,11 @@ model Tenant {
   updatedAt DateTime @updatedAt
 
   users     User[]
+  accounts  Account[]
+  sessions  Session[]
+  bookmarks Bookmark[]
+  notes     Note[]
+  documents Document[]
 }
 
 model User {
@@ -64,6 +69,8 @@ model User {
   bookmarks       Bookmark[]
   notes           Note[]
   documents       Document[]
+  skills          Skill[]
+  checkins        Checkin[]
 
   @@index([tenantId])
   @@index([email])
