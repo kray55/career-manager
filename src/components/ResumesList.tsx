@@ -122,7 +122,7 @@ export default function ResumesList({ resumes, onRefresh }: ResumesListProps) {
                 >
                   <td className="py-3 px-4">
                     <Link
-                      href={`/crm/resumes/editor?id=${resume.id}`}
+                      href={`/resumes?id=${resume.id}`}
                       className="text-white font-medium hover:text-primary-300 transition-colors"
                     >
                       {resume.title}
@@ -155,7 +155,7 @@ export default function ResumesList({ resumes, onRefresh }: ResumesListProps) {
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        href={`/crm/resumes/editor?id=${resume.id}`}
+                        href={`/resumes?id=${resume.id}`}
                         className="px-3 py-1.5 text-xs bg-primary-500/20 text-primary-300 rounded-lg hover:bg-primary-500/30"
                       >
                         Edit

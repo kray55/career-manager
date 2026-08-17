@@ -46,31 +46,34 @@ model Tenant {
   bookmarks Bookmark[]
   notes     Note[]
   documents Document[]
+  resumes   Resume[]
+  contacts  Contact[]
 }
 
 model User {
-  id              String   @id @default(cuid())
-  tenantId        String
-  name            String?
-  email           String   @unique
-  emailVerified   DateTime?
-  image           String?
-  passwordHash    String?
-  role            Role     @default(USER)
-  totpSecret      String?
-  totpEnabled     Boolean  @default(false)
-  totpVerifiedAt  DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  tenantId       String
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  image          String?
+  passwordHash   String?
+  role           Role      @default(USER)
+  totpSecret     String?
+  totpEnabled    Boolean   @default(false)
+  totpVerifiedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  accounts        Account[]
-  sessions        Session[]
-  bookmarks       Bookmark[]
-  notes           Note[]
-  documents       Document[]
-  skills          Skill[]
-  checkins        Checkin[]
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  accounts  Account[]
+  sessions  Session[]
+  bookmarks Bookmark[]
+  notes     Note[]
+  documents Document[]
+  skills    Skill[]
+  checkins  Checkin[]
+  resumes   Resume[]
 
   @@index([tenantId])
   @@index([email])
@@ -91,8 +94,8 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant            Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([tenantId])
@@ -106,8 +109,8 @@ model Session {
   userId       String
   expires      DateTime
 
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([userId])
@@ -131,8 +134,8 @@ model Bookmark {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([userId])
@@ -145,22 +148,22 @@ model Bookmark {
 // ──────────────────────────────────────────────
 
 model Note {
-  id          String   @id @default(cuid())
-  tenantId    String
-  userId      String
-  title       String   @default("Untitled Note")
-  content     String   @db.Text
-  tags        String[]
-  jobUrl      String?  @db.Text
-  pinned      Boolean  @default(false)
-  archived    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  title     String   @default("Untitled Note")
+  content   String   @db.Text
+  tags      String[]
+  jobUrl    String?  @db.Text
+  pinned    Boolean  @default(false)
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  documents   Document[]
+  documents Document[]
 
   @@index([tenantId])
   @@index([userId])
@@ -174,24 +177,24 @@ model Note {
 // ──────────────────────────────────────────────
 
 model Document {
-  id          String   @id @default(cuid())
-  tenantId    String
-  userId      String
-  title       String
-  content     String   @db.Text @default("")
-  type        String   @default("document")
-  status      String   @default("draft")
-  tags        String[]
-  fileUrl     String?  @db.Text
-  fileType    String   @default("")
-  fileSize    Int      @default(0)
-  noteId      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  title     String
+  content   String   @default("") @db.Text
+  type      String   @default("document")
+  status    String   @default("draft")
+  tags      String[]
+  fileUrl   String?  @db.Text
+  fileType  String   @default("")
+  fileSize  Int      @default(0)
+  noteId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  note        Note?    @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  note   Note?  @relation(fields: [noteId], references: [id], onDelete: SetNull)
 
   @@index([tenantId])
   @@index([userId])
@@ -199,6 +202,60 @@ model Document {
   @@index([type])
   @@index([status])
   @@index([noteId])
+}
+
+// ──────────────────────────────────────────────
+// Career Management Models
+// ──────────────────────────────────────────────
+
+model Resume {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  title     String   @default("Untitled Resume")
+  content   String   @db.Text
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant  Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  history ResumeHistory[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([tenantId, userId])
+}
+
+model ResumeHistory {
+  id        String   @id @default(cuid())
+  resumeId  String
+  version   Int
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@unique([resumeId, version])
+  @@index([resumeId])
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String   @default("")
+  email     String
+  company   String   @default("")
+  status    String   @default("PROSPECTIVE")
+  notes     String   @default("") @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tenantId, email])
+  @@index([status])
 }
 
 // ──────────────────────────────────────────────
@@ -212,7 +269,7 @@ model Skill {
   userId    String
   createdAt DateTime @default(now())
 
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   checkins Checkin[]
 
   @@unique([name, userId])
@@ -221,16 +278,16 @@ model Skill {
 }
 
 model Checkin {
-  id        String     @id @default(cuid())
+  id        String      @id @default(cuid())
   type      CheckinType
-  date      DateTime   @default(now())
-  notes     String     @default("")
+  date      DateTime    @default(now())
+  notes     String      @default("")
   skillId   String
   userId    String
-  createdAt DateTime   @default(now())
+  createdAt DateTime    @default(now())
 
-  skill     Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([skillId])
