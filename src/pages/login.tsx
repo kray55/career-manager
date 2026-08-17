@@ -2,6 +2,7 @@
 import { useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
@@ -67,7 +68,10 @@ export default function LoginPage() {
                     className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="password" className="block text-sm font-medium text-slate-300">Password</label>
+                    <Link href="/forgot-password" className="text-xs text-primary-400 hover:text-primary-300">Forgot password?</Link>
+                  </div>
                   <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required
                     className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
@@ -77,19 +81,29 @@ export default function LoginPage() {
                 <label htmlFor="totpCode" className="block text-sm font-medium text-slate-300 mb-1">Authenticator Code</label>
                 <input id="totpCode" type="text" value={totpCode} onChange={e => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="000000" inputMode="numeric" required maxLength={6}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-primary-500" />
                 <p className="text-slate-500 text-xs mt-2 text-center">Enter the 6-digit code from your authenticator app</p>
               </div>
             )}
 
             <button type="submit" disabled={isLoading}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white font-medium rounded-lg shadow-lg shadow-primary-500/25 transition-all disabled:opacity-50 flex items-center justify-center">
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white font-medium rounded-lg shadow-lg shadow-primary-500/25 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
               {isLoading ? (
-                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
               ) : mfaRequired ? "Verify Code" : "Sign In"}
             </button>
           </form>
-          <p className="text-center mt-8 text-xs text-slate-500">Career Manager Portal &mdash; Enterprise Edition</p>
+
+          <div className="mt-6 pt-6 border-t border-white/10 flex flex-col gap-2 text-center">
+            <Link href="/forgot-password" className="text-sm text-slate-400 hover:text-white transition-colors">
+              🔑 Forgot your password?
+            </Link>
+            <Link href="/setup" className="text-sm text-slate-400 hover:text-white transition-colors">
+              ⚙️ First time here? Set up your account
+            </Link>
+          </div>
+
+          <p className="text-center mt-6 text-xs text-slate-500">Career Manager Portal &mdash; Enterprise Edition</p>
         </div>
       </div>
     </div>
