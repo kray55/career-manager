@@ -16,7 +16,22 @@ function createPrismaClient() {
   // with no adapter is invalid as of v7. connectionString is read directly
   // here rather than from schema.prisma's datasource block, which v7 no
   // longer uses for the client's actual runtime connection.
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+ // Vercel's Neon integration exposes the pooled connection as
+// STORAGE_DATABASE_URL. Prefer it when present, while retaining
+// DATABASE_URL for local development and manually configured deployments.
+const connectionString =
+  process.env.STORAGE_DATABASE_URL ||
+  process.env.DATABASE_URL ||
+  process.env.STORAGE_POSTGRES_PRISMA_URL;
+
+if (!connectionString) {
+  throw new Error(
+    "Missing database connection string: set STORAGE_DATABASE_URL or DATABASE_URL."
+  );
+}
+
+const adapter = new PrismaPg({ connectionString });
+
 
   const base = new PrismaClient({
     adapter,
