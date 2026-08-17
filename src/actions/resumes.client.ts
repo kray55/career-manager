@@ -17,7 +17,6 @@ export async function updateResumeClient(data: { id: string; content: string }):
   });
   const result = await res.json();
   if (!res.ok) throw new Error(result.error || 'Failed to update resume');
-  // API may return { success: true, data: resume } or the raw resume
   return result.data ?? result;
 }
 
@@ -31,6 +30,22 @@ export async function getResumeByIdClient(id: string): Promise<any> {
   const res = await fetch(`/api/resumes?id=${encodeURIComponent(id)}`);
   if (!res.ok) throw new Error('Failed to fetch resume');
   const data = await res.json();
-  // API may return { resume } or raw
   return data.resume ?? data;
+}
+
+export async function deleteResumeClient(id: string): Promise<void> {
+  const res = await fetch(`/api/resumes?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || 'Failed to delete resume');
+}
+
+export async function restoreResumeVersionClient(resumeId: string, version: number): Promise<any> {
+  const res = await fetch('/api/resumes/restore', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resumeId, version }),
+  });
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || 'Failed to restore resume version');
+  return result;
 }

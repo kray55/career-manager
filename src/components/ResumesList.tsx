@@ -3,7 +3,8 @@
 import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { deleteResume, restoreResumeVersion } from "@/actions/resumes";
+// Use client helpers to avoid bundling server-only prisma
+import { deleteResumeClient, restoreResumeVersionClient } from "@/actions/resumes.client";
 
 interface ResumeHistorySummary {
   version: number;
@@ -43,7 +44,7 @@ export default function ResumesList({ resumes, onRefresh }: ResumesListProps) {
       if (!confirm("Delete this resume and all its version history?")) return;
       setLoadingId(id);
       try {
-        await deleteResume(id);
+        await deleteResumeClient(id);
         toast.success("Resume deleted");
         onRefresh();
       } catch {
@@ -61,7 +62,7 @@ export default function ResumesList({ resumes, onRefresh }: ResumesListProps) {
         return;
       setLoadingId(resumeId);
       try {
-        await restoreResumeVersion(resumeId, version);
+        await restoreResumeVersionClient(resumeId, version);
         toast.success(`Restored to version ${version}`);
         onRefresh();
       } catch {
@@ -81,7 +82,7 @@ export default function ResumesList({ resumes, onRefresh }: ResumesListProps) {
           className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
           fill="none" viewBox="0 0 24 24" stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 00-14 0 7 7 0 014 5.618M5 21h14" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
           type="text"
