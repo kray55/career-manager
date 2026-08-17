@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
-
 export default function LoginPage() {
   const router = useRouter();
   const { callbackUrl } = router.query;
@@ -17,12 +16,10 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const registered = router.query.registered === "1";
 
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-
 
     try {
       const result = await signIn("credentials", {
@@ -32,9 +29,7 @@ export default function LoginPage() {
         callbackUrl: (callbackUrl as string) || "/dashboard",
       });
 
-
       if (result?.error) { setError("Invalid credentials"); toast.error("Invalid credentials"); setIsLoading(false); return; }
-
 
       if (result?.ok) {
         const sessionRes = await fetch("/api/auth/session");
@@ -51,7 +46,6 @@ export default function LoginPage() {
     } catch { setError("An error occurred"); toast.error("Login failed"); setIsLoading(false); }
   }
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="w-full max-w-md">
@@ -64,10 +58,8 @@ export default function LoginPage() {
             <p className="text-slate-400 mt-1 text-sm">{mfaRequired ? "Enter your 2FA code" : "Sign in to your account"}</p>
           </div>
 
-
           {registered && <div className="bg-emerald-500/20 border border-emerald-500/30 rounded-lg p-3 mb-6"><p className="text-emerald-300 text-sm text-center">Account created. Sign in with your new credentials.</p></div>}
           {error && <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-6"><p className="text-red-300 text-sm text-center">{error}</p></div>}
-
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!mfaRequired ? (
@@ -78,3 +70,47 @@ export default function LoginPage() {
                     className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
                 <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="password" className="block text-sm font-medium text-slate-300">Password</label>
+                    <Link href="/forgot-password" className="text-xs text-primary-400 hover:text-primary-300">Forgot password?</Link>
+                  </div>
+                  <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+                </div>
+              </>
+            ) : (
+              <div>
+                <label htmlFor="totpCode" className="block text-sm font-medium text-slate-300 mb-1">Authenticator Code</label>
+                <input id="totpCode" type="text" value={totpCode} onChange={e => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="000000" inputMode="numeric" required maxLength={6}
+                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 text-center text-2xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <p className="text-slate-500 text-xs mt-2 text-center">Enter the 6-digit code from your authenticator app</p>
+              </div>
+            )}
+
+            <button type="submit" disabled={isLoading}
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white font-medium rounded-lg shadow-lg shadow-primary-500/25 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 transition-all flex items-center justify-center gap-2">
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+              ) : mfaRequired ? "Verify Code" : "Sign In"}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-white/10 flex flex-col gap-2 text-center">
+            <Link href="/forgot-password" className="text-sm text-slate-400 hover:text-white transition-colors">
+              🔑 Forgot your password?
+            </Link>
+            <Link href="/setup" className="text-sm text-slate-400 hover:text-white transition-colors">
+              ⚙️ First time here? Set up your account
+            </Link>
+            <Link href="/register" className="text-sm text-primary-400 hover:text-primary-300 transition-colors">
+              New here? Create an account
+            </Link>
+          </div>
+
+          <p className="text-center mt-6 text-xs text-slate-500">Career Manager Portal &mdash; Enterprise Edition</p>
+        </div>
+      </div>
+    </div>
+  );
+}
