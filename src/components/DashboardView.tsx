@@ -1,6 +1,5 @@
 "use client";
 import { signOut } from "next-auth/react";
-import Link from "next/link";
 import CommissionWidget from "./CommissionWidget";
 
 interface Props {
@@ -22,17 +21,17 @@ export default function DashboardView({ user, stats }: Props) {
               <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{user.tenantSlug}</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="/notes" className="text-sm text-slate-300 hover:text-white">Notes</Link>
-              <Link href="/documents" className="text-sm text-slate-300 hover:text-white">Documents</Link>
-              <Link href="/templates" className="text-sm text-slate-300 hover:text-white">Templates</Link>
-              <Link href="/crm-resumes" className="text-sm text-slate-300 hover:text-white">Resumes</Link>
-              <Link href="/crm-contacts" className="text-sm text-slate-300 hover:text-white">Contacts</Link>
-              <Link href="/library" className="text-sm text-slate-300 hover:text-white">Library</Link>
-              <Link href="/store" className="text-sm text-slate-300 hover:text-white">Store</Link>
-              {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && <Link href="/admin" className="text-sm text-slate-300 hover:text-white">Admin</Link>}
-              <Link href="/profile/mfa" className={`text-sm ${user.totpEnabled ? "text-green-400 hover:text-green-300" : "text-slate-300 hover:text-white"}`}>
+              <a href="/notes" className="text-sm text-slate-300 hover:text-white">Notes</a>
+              <a href="/documents" className="text-sm text-slate-300 hover:text-white">Documents</a>
+              <a href="/templates" className="text-sm text-slate-300 hover:text-white">Templates</a>
+              <a href="/crm-resumes" className="text-sm text-slate-300 hover:text-white">Resumes</a>
+              <a href="/crm-contacts" className="text-sm text-slate-300 hover:text-white">Contacts</a>
+              <a href="/library" className="text-sm text-slate-300 hover:text-white">Library</a>
+              <a href="/store" className="text-sm text-slate-300 hover:text-white">Store</a>
+              {(user.role === "ADMIN" || user.role === "SUPER_ADMIN") && <a href="/admin" className="text-sm text-slate-300 hover:text-white">Admin</a>}
+              <a href="/profile/mfa" className={`text-sm ${user.totpEnabled ? "text-green-400 hover:text-green-300" : "text-slate-300 hover:text-white"}`}>
                 {user.totpEnabled ? "✓ 2FA Active" : "Enable 2FA"}
-              </Link>
+              </a>
               <button onClick={() => signOut({ callbackUrl: "/login" })} className="text-sm text-slate-400 hover:text-red-400">Sign Out</button>
             </div>
           </div>
@@ -51,11 +50,11 @@ export default function DashboardView({ user, stats }: Props) {
                 </div>
                 <div><p className="text-2xl font-bold text-white">{stats.bookmarkCount}</p><p className="text-xs text-slate-400">Bookmarks</p></div>
               </div>
-              <Link href="/library" className="text-xs text-primary-400 hover:text-primary-300">View Library →</Link>
+              <a href="/library" className="text-xs text-primary-400 hover:text-primary-300">View Library →</a>
             </div>
           </div>
           <div className="col-span-12 sm:col-span-6 lg:col-span-3">
-            <Link href="/notes" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
+            <a href="/notes" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -63,10 +62,10 @@ export default function DashboardView({ user, stats }: Props) {
                 <div><p className="text-2xl font-bold text-white">{stats.noteCount}</p><p className="text-xs text-slate-400">Notes</p></div>
               </div>
               <span className="text-xs text-green-400 hover:text-green-300">View Notes →</span>
-            </Link>
+            </a>
           </div>
           <div className="col-span-12 sm:col-span-6 lg:col-span-3">
-            <Link href="/documents" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
+            <a href="/documents" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -74,10 +73,10 @@ export default function DashboardView({ user, stats }: Props) {
                 <div><p className="text-2xl font-bold text-white">{stats.documentCount}</p><p className="text-xs text-slate-400">Documents</p></div>
               </div>
               <span className="text-xs text-blue-400 hover:text-blue-300">View Documents →</span>
-            </Link>
+            </a>
           </div>
           <div className="col-span-12 sm:col-span-6 lg:col-span-3">
-            <Link href="/crm-resumes" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
+            <a href="/crm-resumes" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -85,13 +84,13 @@ export default function DashboardView({ user, stats }: Props) {
                 <div><p className="text-2xl font-bold text-white">{stats.resumeCount}</p><p className="text-xs text-slate-400">Resumes</p></div>
               </div>
               <span className="text-xs text-purple-400 hover:text-purple-300">Build Resumes →</span>
-            </Link>
+            </a>
           </div>
         </div>
 
         <div className="grid grid-cols-12 gap-6 mb-10">
           <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-            <Link href="/crm-contacts" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
+            <a href="/crm-contacts" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -99,10 +98,10 @@ export default function DashboardView({ user, stats }: Props) {
                 <div><p className="text-2xl font-bold text-white">{stats.contactCount}</p><p className="text-xs text-slate-400">Contacts (CRM)</p></div>
               </div>
               <span className="text-xs text-cyan-400 hover:text-cyan-300">Kanban Board →</span>
-            </Link>
+            </a>
           </div>
           <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-            <Link href="/contact" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
+            <a href="/contact" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
@@ -110,10 +109,10 @@ export default function DashboardView({ user, stats }: Props) {
                 <div><p className="text-sm text-slate-400">Email Hub</p></div>
               </div>
               <span className="text-xs text-pink-400 hover:text-pink-300">Send Email →</span>
-            </Link>
+            </a>
           </div>
           <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-            <Link href="/store" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
+            <a href="/store" className="block bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm hover:border-white/20 transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
@@ -121,7 +120,7 @@ export default function DashboardView({ user, stats }: Props) {
                 <div><p className="text-sm text-slate-400">Career Store</p></div>
               </div>
               <span className="text-xs text-purple-400 hover:text-purple-300">Browse Resources →</span>
-            </Link>
+            </a>
           </div>
         </div>
 
@@ -129,51 +128,51 @@ export default function DashboardView({ user, stats }: Props) {
           <div className="col-span-12 lg:col-span-8 bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
             <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
             <div className="grid grid-cols-12 gap-4">
-              <Link href="/notes" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
+              <a href="/notes" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
                 <svg className="w-6 h-6 text-green-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                 <p className="text-sm text-white font-medium">New Note</p>
                 <p className="text-xs text-slate-500 mt-1">Write career notes</p>
-              </Link>
-              <Link href="/crm-resumes" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
+              </a>
+              <a href="/crm-resumes" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
                 <svg className="w-6 h-6 text-purple-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 <p className="text-sm text-white font-medium">New Resume</p>
                 <p className="text-xs text-slate-500 mt-1">Build with Resume Builder</p>
-              </Link>
-              <Link href="/crm-contacts" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
+              </a>
+              <a href="/crm-contacts" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
                 <svg className="w-6 h-6 text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 <p className="text-sm text-white font-medium">CRM Contacts</p>
                 <p className="text-xs text-slate-500 mt-1">Kanban board</p>
-              </Link>
-              <Link href="/templates" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
+              </a>
+              <a href="/templates" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
                 <svg className="w-6 h-6 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0V7a2 2 0 01-2-2H7a2 2 0 01-2 2v4" /></svg>
                 <p className="text-sm text-white font-medium">Use Template</p>
                 <p className="text-xs text-slate-500 mt-1">Resume/Cover Letter</p>
-              </Link>
-              <Link href="/store" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
+              </a>
+              <a href="/store" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
                 <svg className="w-6 h-6 text-purple-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                 <p className="text-sm text-white font-medium">Career Store</p>
                 <p className="text-xs text-slate-500 mt-1">Browse & Purchase</p>
-              </Link>
-              <Link href="/contact" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
+              </a>
+              <a href="/contact" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
                 <svg className="w-6 h-6 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                 <p className="text-sm text-white font-medium">Send Email</p>
                 <p className="text-xs text-slate-500 mt-1">Contact via SMTP</p>
-              </Link>
-              <Link href="/profile/mfa" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
+              </a>
+              <a href="/profile/mfa" className="col-span-12 sm:col-span-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-lg p-4 text-center transition-all group">
                 <svg className="w-6 h-6 text-green-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955  0112 2.944a11.955 11.955  01-8.618 3.04A12.02 12.02  003 9c 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622  -1.042-.133-2.052-.382-3.016z" /></svg>
                 <p className="text-sm text-white font-medium">Security</p>
                 <p className="text-xs text-slate-500 mt-1">Manage 2FA settings</p>
-              </Link>
+              </a>
             </div>
           </div>
           <div className="col-span-12 lg:col-span-4 space-y-6">
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
               <h2 className="text-lg font-semibold text-white mb-4">🤖 AI Generator</h2>
               <p className="text-sm text-slate-400 mb-4">Generate resumes, cover letters, and professional summaries with AI.</p>
-              <Link href="/templates" className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-700 text-white text-sm font-medium rounded-xl hover:from-purple-600 hover:to-purple-800">
+              <a href="/templates" className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-700 text-white text-sm font-medium rounded-xl hover:from-purple-600 hover:to-purple-800">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 Generate with AI
-              </Link>
+              </a>
             </div>
             <CommissionWidget />
           </div>
