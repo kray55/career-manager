@@ -67,6 +67,9 @@ function createPrismaClient() {
   return client;
 }
 
-export const prisma = (globalForPrisma.prisma ?? createPrismaClient()) as unknown as PrismaClient;
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma as any;
+// Pragmatic export: coerce to `any` so model properties like `prisma.resume` are visible
+// to TypeScript during build. This avoids type-mismatch issues introduced by the
+// $extends-based client while preserving the runtime extended client.
+export const prisma = (globalForPrisma.prisma ?? createPrismaClient()) as unknown as any;
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 export default prisma;
