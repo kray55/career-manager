@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Career Manager Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: rgb(12, 19, 36);
+      color: rgb(226, 232, 240);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .container {
+      max-width: 80rem;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+    .col-1  { grid-column: span 1; }
+    .col-2  { grid-column: span 2; }
+    .col-3  { grid-column: span 3; }
+    .col-4  { grid-column: span 4; }
+    .col-5  { grid-column: span 5; }
+    .col-6  { grid-column: span 6; }
+    .col-7  { grid-column: span 7; }
+    .col-8  { grid-column: span 8; }
+    .col-9  { grid-column: span 9; }
+    .col-10 { grid-column: span 10; }
+    .col-11 { grid-column: span 11; }
+    .col-12 { grid-column: span 12; }
+    @media (max-width: 1024px) {
+      .col-lg-6 { grid-column: span 6; }
+    }
+    @media (max-width: 768px) {
+      .row { gap: 16px; }
+      .col-sm-12 { grid-column: span 12; }
+      .col-4, .col-6, .col-3, .col-5, .col-7, .col-8 { grid-column: span 12; }
+    }
+
+    .top-header {
+      position: fixed;
+      top: calc(1px - 1px); left: calc(1px - 1px); right: calc(1px - 1px);
+      height: 64px;
+      background: rgba(15, 23, 42, .92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+    }
+    .top-header .container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      color: #fff;
+    }
+    .header-logo .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, rgb(99, 102, 241), rgb(67, 56, 202));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .header-nav a {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgb(148, 163, 184);
+      transition: color .2s;
+    }
+    .header-nav a:hover { color: #fff; }
+    .header-nav .cta-btn {
+      padding: 8px 20px;
+      background: linear-gradient(135deg, rgb(99, 102, 241), rgb(67, 56, 202));
+      color: #fff !important;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .header-nav .cta-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: rgb(99 102 241 / .4) calc(1px - 1px) 4px 16px;
+    }
+    @media (max-width: 640px) {
+      .header-nav .nav-links { display: none; }
+    }
+    body { padding-top: 64px; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 100px 16px 80px;
+      text-align: center;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%; left: -20%;
+      width: 140%; height: 140%;
+      background: radial-gradient(ellipse at 30% 40%, rgba(99,102,241,.12) 1%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 30%, rgb(165, 180, 252) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 18px;
+      color: rgb(148, 163, 184);
+      max-width: 640px;
+      margin: 24px auto;
+    }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero-buttons .btn-primary {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, rgb(99, 102, 241), rgb(67, 56, 202));
+      color: #fff;
+      font-weight: 600;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .hero-buttons .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: rgb(99 102 241 / .4) calc(1px - 1px) 8px 24px;
+    }
+    .hero-buttons .btn-secondary {
+      padding: 14px 32px;
+      background: rgba(255,255,255,.06);
+      color: rgb(226, 232, 240);
+      font-weight: 500;
+      border-radius: 12px;
+      font-size: 16px;
+      border: 1px solid rgba(255,255,255,.1);
+      transition: background .2s, border-color .2s;
+    }
+    .hero-buttons .btn-secondary:hover {
+      background: rgba(255,255,255,.1);
+      border-color: rgba(255,255,255,.2);
+    }
+
+    .stats-bar {
+      padding: 40px 16px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .stat-card { text-align: center; }
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .stat-card .label {
+      font-size: 14px;
+      color: rgb(100, 116, 139);
+      margin-top: 4px;
+    }
+
+    .section {
+      padding: 80px 16px;
+    }
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgb(99, 102, 241);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 16px;
+      color: rgb(100, 116, 139);
+      max-width: 600px;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px;
+      padding: 32px 28px;
+      transition: border-color .3s, transform .3s;
+    }
+    .feature-card:hover {
+      border-color: rgba(99,102,241,.3);
+      transform: translateY(-2px);
+    }
+    .feature-card .icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: rgb(100, 116, 139);
+      line-height: 1.6;
+    }
+
+    .sprint-table-wrap {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px;
+      overflow: hidden;
+      overflow-x: auto;
+    }
+    .sprint-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .sprint-table thead {
+      background: rgba(99,102,241,.12);
+    }
+    .sprint-table th {
+      padding: 16px 20px;
+      text-align: left;
+      font-weight: 600;
+      color: rgb(165, 180, 252);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .sprint-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      color: rgb(203, 213, 225);
+      vertical-align: top;
+    }
+    .sprint-table tr:last-child td { border-bottom: none; }
+    .sprint-table tr:hover td { background: rgba(255,255,255,.03); }
+    .sprint-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .sprint-badge.s1 { background: rgba(99,102,241,.15); color: rgb(165, 180, 252); }
+    .sprint-badge.s2 { background: rgba(34,197,94,.15); color: rgb(134, 239, 172); }
+    .sprint-badge.s3 { background: rgba(168,85,247,.15); color: rgb(196, 166, 247); }
+    .sprint-badge.s4 { background: rgba(6,182,212,.15); color: rgb(103, 232, 249); }
+    .sprint-badge.s5 { background: rgba(234,179,8,.15); color: rgb(253, 224, 71); }
+    .sprint-badge.s6 { background: rgba(249,115,22,.15); color: rgb(253, 186, 116); }
+    .sprint-badge.s7 { background: rgba(239,68,68,.15); color: rgb(252, 165, 165); }
+
+    .screen-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .screen-tag.top { background: rgba(99,102,241,.12); color: rgb(165, 180, 252); }
+    .screen-tag.left { background: rgba(34,197,94,.12); color: rgb(134, 239, 172); }
+    .screen-tag.center { background: rgba(168,85,247,.12); color: rgb(196, 166, 247); }
+    .screen-tag.right { background: rgba(6,182,212,.12); color: rgb(103, 232, 249); }
+    .screen-tag.sidebar { background: rgba(234,179,8,.12); color: rgb(253, 224, 71); }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .arch-node {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .arch-node .emoji { font-size: 28px; margin-bottom: 8px; }
+    .arch-node h4 { font-size: 14px; font-weight: 600; color: #fff; }
+    .arch-node p { font-size: 12px; color: rgb(100, 116, 139); margin-top: 4px; }
+
+    .screen-map {
+      display: grid;
+      grid-template-columns: 200px 1fr 240px;
+      gap: 12px;
+      min-height: 360px;
+    }
+    .screen-map .zone {
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .screen-map .zone h4 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 4px;
+    }
+    .screen-map .zone .item {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(255,255,255,.04);
+      color: rgb(148, 163, 184);
+    }
+    .screen-map .zone-left {
+      background: rgba(34,197,94,.06);
+      border: 1px solid rgba(34,197,94,.12);
+    }
+    .screen-map .zone-left h4 { color: rgb(134, 239, 172); }
+    .screen-map .zone-center {
+      background: rgba(168,85,247,.06);
+      border: 1px solid rgba(168,85,247,.12);
+    }
+    .screen-map .zone-center h4 { color: rgb(196, 166, 247); }
+    .screen-map .zone-right {
+      background: rgba(6,182,212,.06);
+      border: 1px solid rgba(6,182,212,.12);
+    }
+    .screen-map .zone-right h4 { color: rgb(103, 232, 249); }
+    .screen-map .zone-top {
+      background: rgba(99,102,241,.06);
+      border: 1px solid rgba(99,102,241,.12);
+    }
+    .screen-map .zone-top h4 { color: rgb(165, 180, 252); }
+
+    .footer {
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: 40px 16px;
+      text-align: center;
+      color: rgb(71, 85, 105);
+      font-size: 14px;
+    }
+    .footer strong { color: rgb(100, 116, 139); }
+
+    .text-center { text-align: center; }
+    .mt-8 { margin-top: 32px; }
+    .mb-8 { margin-bottom: 32px; }
+    .gap-4 { gap: 16px; }
+  </style>
+</head>
+<body>
+
+  <header class="top-header">
+    <div class="container">
+      <a href="/" class="header-logo">
+        <div class="logo-icon">&#967;</div>
+        <span>Career Manager</span>
+      </a>
+      <nav class="header-nav">
+        <span class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#sprints">Sprints</a>
+          <a href="#architecture">Architecture</a>
+          <a href="/login">Sign In</a>
+        </span>
+        <a href="/login" class="cta-btn">Get Started</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Your Career Command Center</h1>
+      <p>
+        A multi-tenant, all-in-one platform for job seekers, career coaches, 
+        and workforce agencies. Manage notes, resumes, contacts, store, 
+        reports &mdash; all in one place.
+      </p>
+      <div class="hero-buttons">
+        <a href="/login" class="btn-primary">Launch Dashboard &rarr;</a>
+        <a href="#sprints" class="btn-secondary">View Sprint Timeline</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-bar">
+    <div class="container">
+      <div class="row">
+        <div class="col-3 col-sm-12 stat-card">
+          <div class="number">7</div>
+          <div class="label">Sprints Completed</div>
+        </div>
+        <div class="col-3 col-sm-12 stat-card">
+          <div class="number">60+</div>
+          <div class="label">Files Built</div>
+        </div>
+        <div class="col-3 col-sm-12 stat-card">
+          <div class="number">12</div>
+          <div class="label">Database Models</div>
+        </div>
+        <div class="col-3 col-sm-12 stat-card">
+          <div class="number">4</div>
+          <div class="label">Third-party APIs</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center" style="margin-bottom:40px;">
+          <span class="section-label">Sprint 1 &mdash; 7</span>
+          <h2 class="section-title">Everything You Need</h2>
+          <p class="section-sub" style="margin: 24px auto;">
+            Seven sprints delivered a complete multi-tenant platform with these core capabilities.
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-4 col-sm-12">
+          <div class="feature-card">
+            <div class="icon" style="background:rgba(99,102,241,.12);">&#128221;</div>
+            <h3>Notes &amp; Documents</h3>
+            <p>Rich-text editor with TipTap, full CRUD, tagging, pinning, archiving, and file attachments.</p>
+          </div>
+        </div>
+        <div class="col-4 col-sm-12">
+          <div class="feature-card">
+            <div class="icon" style="background:rgba(168,85,247,.12);">&#128196;</div>
+            <h3>Resume Builder</h3>
+            <p>Drag-and-drop builder with version history, PDF export via @react-pdf/renderer, and AI templates.</p>
+          </div>
+        </div>
+        <div class="col-4 col-sm-12">
+          <div class="feature-card">
+            <div class="icon" style="background:rgba(6,182,212,.12);">&#128172;</div>
+            <h3>Team Chat &amp; CRM</h3>
+            <p>Real-time socket.io chat, contact Kanban board, email hub with SMTP integration.</p>
+          </div>
+        </div>
+        <div class="col-4 col-sm-12">
+          <div class="feature-card">
+            <div class="icon" style="background:rgba(234,179,8,.12);">&#128722;</div>
+            <h3>Affiliate Store</h3>
+            <p>Stripe Checkout integration, product catalog with ISR, affiliate tracking, commission dashboard.</p>
+          </div>
+        </div>
+        <div class="col-4 col-sm-12">
+          <div class="feature-card">
+            <div class="icon" style="background:rgba(249,115,22,.12);">&#128200;</div>
+            <h3>Budget &amp; Reports</h3>
+            <p>12-month cash flow charts with Recharts, budget CSV export, grant report PDF generation.</p>
+          </div>
+        </div>
+        <div class="col-4 col-sm-12">
+          <div class="feature-card">
+            <div class="icon" style="background:rgba(239,68,68,.12);">&#128274;</div>
+            <h3>Security &amp; Audit</h3>
+            <p>2FA/TOTP MFA, GDPR audit logs, Sentry error monitoring, role-based access control.</p>
+          </div>
+        </div>
+        <div class="col-4 col-sm-12">
+          <div class="feature-card">
+            <div class="icon" style="background:rgba(239,68,68,.12);">&#128225;</div>
+            <h3>Live Intelligence Hub</h3>
+            <p>Firefox sidebar extension polling Odoo, ERPNext &amp; OrangeHRM in real time &mdash; contextual alerts, compliance notifications, zero-trust container isolation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="sprints" style="background:rgba(255,255,255,.02);">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center" style="margin-bottom:40px;">
+          <span class="section-label">Sprint Timeline</span>
+          <h2 class="section-title">Sprint-to-Component Matrix</h2>
+          <p class="section-sub" style="margin: 24px auto;">
+            Which sprint built which physical part of the screen. Each sprint delivered a 
+            complete vertical slice of the application.
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="sprint-table-wrap">
+            <table class="sprint-table">
+              <thead>
+                <tr>
+                  <th>Sprint</th>
+                  <th>Focus</th>
+                  <th>UI Component / Feature</th>
+                  <th>Location on Screen</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="sprint-badge s1">Sprint 1</span></td>
+                  <td><strong style="color:#fff;">Foundation Shell</strong></td>
+                  <td>Global 64px Top Header, Left Navigation Rail, Bookmark Sidebar API, Multi-tenant auth, 2FA/MFA</td>
+                  <td>
+                    <span class="screen-tag top">Top</span>
+                    <span class="screen-tag left">Left</span>
+                    <span class="screen-tag sidebar">Sidebar</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="sprint-badge s2">Sprint 2</span></td>
+                  <td><strong style="color:#fff;">Notes Manager</strong></td>
+                  <td>CRUD notes database, TipTap rich-text editor, document library, AI content generator</td>
+                  <td><span class="screen-tag center">Center Canvas</span></td>
+                </tr>
+                <tr>
+                  <td><span class="sprint-badge s3">Sprint 3</span></td>
+                  <td><strong style="color:#fff;">Resume Builder</strong></td>
+                  <td>Drag-and-drop resume builder, version history, PDF generation, template system</td>
+                  <td><span class="screen-tag center">Center Canvas</span></td>
+                </tr>
+                <tr>
+                  <td><span class="sprint-badge s4">Sprint 4</span></td>
+                  <td><strong style="color:#fff;">Chat &amp; Compliance</strong></td>
+                  <td>Socket.io real-time chat widget, stakeholder CRM contacts, Kanban board, email hub with SMTP</td>
+                  <td>
+                    <span class="screen-tag center">Center Canvas</span>
+                    <span class="screen-tag right">Right Sidebar</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="sprint-badge s5">Sprint 5</span></td>
+                  <td><strong style="color:#fff;">Affiliate Store</strong></td>
+                  <td>Stripe Checkout, product catalog with ISR, affiliate link tracking, commission dashboard widget</td>
+                  <td><span class="screen-tag center">Center Canvas</span></td>
+                </tr>
+                <tr>
+                  <td><span class="sprint-badge s6">Sprint 6</span></td>
+                  <td><strong style="color:#fff;">Reports &amp; Deploy</strong></td>
+                  <td>12-month budget cash flow chart, grant report PDF generator, Sentry monitoring, pilot invite system, feedback widget</td>
+                  <td>
+                    <span class="screen-tag center">Center Canvas</span>
+                    <span class="screen-tag right">Right Sidebar</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="sprint-badge s7">Sprint 7</span></td>
+                  <td><strong style="color:#fff;">Live RSS Hub</strong></td>
+                  <td>RSS Aggregator, System Notifications, Real-time alerts, Firefox extension integration</td>
+                  <td><span class="screen-tag sidebar">Firefox Sidebar</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="architecture">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center" style="margin-bottom:40px;">
+          <span class="section-label">Architecture</span>
+          <h2 class="section-title">Screen Layout Map</h2>
+          <p class="section-sub" style="margin: 24px auto;">
+            The 4-zone layout showing where each sprint's components live on screen.
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="screen-map" style="margin-bottom:12px;">
+            <div class="zone zone-top" style="grid-column:1/-1;">
+              <h4>&#965; Top Zone &mdash; 64px Global Header (Sprint 1)</h4>
+              <div class="item">Logo &amp; Brand</div>
+              <div class="item">Global Navigation (Notes, Docs, Store, Contacts)</div>
+              <div class="item">User Menu / Sign Out</div>
+              <div class="item">2FA Status Indicator</div>
+            </div>
+          </div>
+          <div class="screen-map">
+            <div class="zone zone-left">
+              <h4>&#9664; Left Rail (Sprint 1)</h4>
+              <div class="item">Sidebar Toggle Button</div>
+              <div class="item">Bookmark Quick-Save</div>
+              <div class="item">Recent Bookmarks</div>
+              <div class="item">Quick Nav Links</div>
+            </div>
+            <div class="zone zone-center">
+              <h4>&#9679; Center Canvas</h4>
+              <div class="item"><strong>Sprint 2:</strong> Notes CRUD + TipTap Editor</div>
+              <div class="item"><strong>Sprint 3:</strong> Resume Builder + PDF</div>
+              <div class="item"><strong>Sprint 4:</strong> CRM Kanban + Email</div>
+              <div class="item"><strong>Sprint 5:</strong> Store Catalog + Checkout</div>
+              <div class="item"><strong>Sprint 6:</strong> Budget Chart + Reports</div>
+            </div>
+            <div class="zone zone-right">
+              <h4>&#9654; Right Rail</h4>
+              <div class="item"><strong>Sprint 4:</strong> Chat Widget (floating)</div>
+              <div class="item"><strong>Sprint 5:</strong> Commission Widget</div>
+              <div class="item"><strong>Sprint 6:</strong> AI Generator</div>
+              <div class="item"><strong>Sprint 6:</strong> Feedback Button</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:rgba(255,255,255,.02);">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center" style="margin-bottom:40px;">
+          <span class="section-label">Technology</span>
+          <h2 class="section-title">Built With</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#9878;</div>
+          <h4>Next.js 12</h4>
+          <p>Pages router with SSR, ISR, SSG</p>
+        </div>
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#128038;</div>
+          <h4>Tailwind CSS</h4>
+          <p>Utility-first + dark theme</p>
+        </div>
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#128451;</div>
+          <h4>Prisma + PostgreSQL</h4>
+          <p>15+ models, multi-tenant schema</p>
+        </div>
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#128274;</div>
+          <h4>NextAuth.js</h4>
+          <p>Credentials + 2FA/TOTP MFA</p>
+        </div>
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#128260;</div>
+          <h4>Socket.io</h4>
+          <p>Real-time chat rooms</p>
+        </div>
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#128179;</div>
+          <h4>Stripe</h4>
+          <p>Checkout + webhooks + affiliate</p>
+        </div>
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#128202;</div>
+          <h4>Recharts</h4>
+          <p>Cash flow area charts</p>
+        </div>
+        <div class="col-3 col-sm-12 arch-node">
+          <div class="emoji">&#128196;</div>
+          <h4>@react-pdf/renderer</h4>
+          <p>Resume + report PDFs</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <p><strong>Career Manager Portal</strong> &mdash; Complete Sprint 1 &ndash; 7 Delivery</p>
+          <p style="margin-top:8px; font-size:12px;">
+            Built with Next.js &bull; Prisma &bull; PostgreSQL &bull; Tailwind CSS &bull; Socket.io &bull; Stripe &bull; Recharts
+          </p>
+          <p style="margin-top:16px; font-size:12px;">
+            &copy; 2024 Career Manager. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
