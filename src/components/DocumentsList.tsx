@@ -3,7 +3,8 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { updateDocumentClient, deleteDocumentClient } from "@/actions/documents";
+// Use client helper to avoid bundling server-only prisma
+import { updateDocumentClient, deleteDocumentClient } from "@/actions/documents.client";
 
 export interface DocumentItem {
   id: string;
@@ -144,7 +145,7 @@ export default function DocumentsList({ documents, onUpdate }: Props) {
             <div key={doc.id}
               className="col-span-12 sm:col-span-6 lg:col-span-4 bg-white/5 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all group">
               <div className="flex items-start gap-3 mb-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink- ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   doc.type === "resume" ? "bg-green-500/20" :
                   doc.type === "coverLetter" ? "bg-blue-500/20" :
                   doc.type === "document" ? "bg-primary-500/20" : "bg-slate-500/20"
@@ -157,11 +158,11 @@ export default function DocumentsList({ documents, onUpdate }: Props) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={TYPE_ICONS[doc.type] || TYPE_ICONS.other} />
                   </svg>
                 </div>
-                <div className="flex-1 min-w-">
+                <div className="flex-1 min-w-0">
                   <Link href={`/documents?id=${doc.id}`} className="text-sm font-medium text-white hover:text-primary-400 transition-colors block truncate">
                     {doc.title}
                   </Link>
-                  <p className="text-xs text-slate-500 mt-.5 capitalize">{doc.type} • {formatDate(doc.updatedAt)}</p>
+                  <p className="text-xs text-slate-500 mt-0.5 capitalize">{doc.type} • {formatDate(doc.updatedAt)}</p>
                 </div>
               </div>
 
@@ -178,12 +179,12 @@ export default function DocumentsList({ documents, onUpdate }: Props) {
                     <span className="text-xs text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full">AI</span>
                   )}
                 </div>
-                <div className="flex items-center gap-1 opacity- group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => toggleStatus(doc)}
                     className="p-1.5 rounded-lg text-slate-600 hover:text-blue-400 hover:bg-blue-500/10"
                     title="Toggle status">
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001  004.582 9m H9m11 11v-5h-.581m a8.003 8.003  012.419-6.836m A8.001 8.001  002.418 5m  11H15" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   </button>
                   <button onClick={() => handleDelete(doc.id)} disabled={isDeleting === doc.id}
