@@ -21,8 +21,22 @@ export default function FirefoxSidebarHost() {
     if (event.origin !== window.location.origin && !event.origin.startsWith("moz-extension://")) return;
 
     try {
-      const payload: SidebarPayload = JSON.parse(event.data);
-      if (!payload.type) return;
+const payload: SidebarPayload | null =
+  typeof event.data === "string"
+    ? (() => {
+        try {
+          return JSON.parse(event.data) as SidebarPayload;
+        } catch {
+          // Ignore non-JSON messages from browser/extensions.
+          return null;
+        }
+      })()
+    : event.data && typeof event.data === "object"
+      ? (event.data as SidebarPayload)
+      : null;
+
+if (!payload?.type) return;
+
 
       switch (payload.type) {
         case "PING":
