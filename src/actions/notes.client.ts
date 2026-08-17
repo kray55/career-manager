@@ -8,7 +8,7 @@ export async function getNotesClient(params?: { search?: string; tag?: string; s
   return res.json();
 }
 
-export async function createNoteClient(data: { title?: string; content?: string; tags?: string }) {
+export async function createNoteClient(data: { title?: string; content?: string; tags?: string[]; jobUrl?: string | null; pinned?: boolean }) {
   const res = await fetch("/api/notes", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -19,7 +19,7 @@ export async function createNoteClient(data: { title?: string; content?: string;
   return result;
 }
 
-export async function updateNoteClient(id: string, data: any) {
+export async function updateNoteClient(id: string, data: { title?: string; content?: string; tags?: string[]; jobUrl?: string | null; pinned?: boolean; archived?: boolean }) {
   const res = await fetch("/api/notes", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
