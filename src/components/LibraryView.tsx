@@ -3,7 +3,8 @@ import { useState, useMemo, useCallback } from "react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { deleteBookmark, updateBookmark } from "@/actions/bookmark";
+// Use client helpers to avoid bundling server-only prisma
+import { deleteBookmarkClient, updateBookmarkClient } from "@/actions/bookmark.client";
 
 interface Bookmark { id: string; url: string; title: string; description: string | null; favicon: string | null; tags: string[]; isFavorite: boolean; createdAt: string; updatedAt: string }
 
@@ -17,11 +18,16 @@ export default function LibraryView({ bookmarks: initial }: Props) {
   const filtered = useMemo(() => {
     if (!searchQuery.trim()) return bookmarks;
     const q = searchQuery.toLowerCase();
-    return bookmarks.filter(b => b.title.toLowerCase().includes(q) || (b.description && b.description.toLowerCase().includes(q)) || b.url.toLowerCase().includes(q) || b.tags.some(t => t.toLowerCase().includes(q)));
+    return bookmarks.filter(b =>
+      b.title.toLowerCase().includes(q) ||
+      (b.description && b.description.toLowerCase().includes(q)) ||
+      b.url.toLowerCase().includes(q) ||
+      b.tags.some(t => t.toLowerCase().includes(q))
+    );
   }, [bookmarks, searchQuery]);
 
   const toggleFav = useCallback(async (bm: Bookmark) => {
-    const r = await updateBookmark(bm.id, { isFavorite: !bm.isFavorite });
+    const r = await updateBookmarkClient(bm.id, { isFavorite: !bm.isFavorite });
     if (r.success) setBookmarks(prev => prev.map(b => b.id === bm.id ? { ...b, isFavorite: !b.isFavorite } : b));
     else toast.error("Failed");
   }, []);
@@ -29,7 +35,7 @@ export default function LibraryView({ bookmarks: initial }: Props) {
   const del = useCallback(async (id: string) => {
     if (!confirm("Delete this bookmark?")) return;
     setIsDeleting(id);
-    const r = await deleteBookmark(id);
+    const r = await deleteBookmarkClient(id);
     if (r.success) { setBookmarks(p => p.filter(b => b.id !== id)); toast.success("Deleted"); }
     else toast.error("Failed");
     setIsDeleting(null);
@@ -44,7 +50,9 @@ export default function LibraryView({ bookmarks: initial }: Props) {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
               </div>
               <span className="text-white font-semibold">Career Library</span>
             </div>
@@ -61,19 +69,30 @@ export default function LibraryView({ bookmarks: initial }: Props) {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div><h1 className="text-2xl font-bold text-white">My Bookmarks</h1><p className="text-slate-400 text-sm mt-1">{bookmarks.length} bookmark{bookmarks.length !== 1 ? "s" : ""} saved</p></div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">My Bookmarks</h1>
+            <p className="text-slate-400 text-sm mt-1">{bookmarks.length} bookmark{bookmarks.length !== 1 ? "s" : ""} saved</p>
+          </div>
         </div>
 
         <div className="relative mb-6">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search bookmarks by title, URL, or tags..."
             className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
-          {searchQuery && <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>}
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          )}
         </div>
 
         {filtered.length === 0 ? (
           <div className="text-center py-20">
-            <svg className="w-20 h-20 text-slate-700 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+            <svg className="w-20 h-20 text-slate-700 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
             <p className="text-slate-400 text-lg mb-2">{searchQuery ? "No bookmarks match your search" : "No bookmarks yet"}</p>
             <p className="text-slate-600 text-sm">{searchQuery ? "Try a different search term" : "Use the Firefox sidebar to save job listings"}</p>
           </div>
@@ -87,11 +106,16 @@ export default function LibraryView({ bookmarks: initial }: Props) {
                     <p className="text-xs text-slate-500 mt-0.5 truncate">{getDomain(bm.url)}</p>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <button onClick={() => toggleFav(bm)} className={`p-1.5 rounded-lg transition-colors ${bm.isFavorite ? "text-yellow-400 hover:text-yellow-300 bg-yellow-500/10" : "text-slate-600 hover:text-yellow-400 hover:bg-yellow-500/5 opacity-0 group-hover:opacity-100"}`}>
-                      <svg className="w-4 h-4" fill={bm.isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                    <button onClick={() => toggleFav(bm)} className={`p-1.5 rounded-lg transition-colors ${bm.isFavorite ? "text-yellow-400 hover:text-yellow-300 bg-yellow-500/10" : "text-slate-600 hover:text-yellow-400 hover:bg-yellow-500/10"}`}>
+                      <svg className="w-4 h-4" fill={bm.isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
                     </button>
-                    <button onClick={() => del(bm.id)} disabled={isDeleting === bm.id} className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100">
-                      {isDeleting === bm.id ? <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg> : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>}
+                    <button onClick={() => del(bm.id)} disabled={isDeleting === bm.id} className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50">
+                      {isDeleting === bm.id
+                        ? <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /></svg>
+                        : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      }
                     </button>
                   </div>
                 </div>
