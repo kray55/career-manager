@@ -52,7 +52,6 @@
   main { @apply relative; }
   main h1, main h2, main h3 { @apply tracking-tight; }
   main .bg-white\/5 { @apply bg-white/[0.065] backdrop-blur-xl; }
-  main .border-white\/10 { @apply border-white/10; }
   .text-slate-400 { color: rgb(165 180 252 / .72); }
   .text-slate-500 { color: rgb(148 163 184 / .72); }
   .text-slate-600 { color: rgb(148 163 184 / .52); }
