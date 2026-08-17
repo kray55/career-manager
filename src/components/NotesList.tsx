@@ -3,7 +3,8 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { updateNoteClient, deleteNoteClient } from "@/actions/notes";
+// Use client helper to avoid bundling server-only prisma
+import { updateNoteClient, deleteNoteClient } from "@/actions/notes.client";
 
 export interface NoteItem {
   id: string;
@@ -31,13 +32,9 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
 
   const filtered = useMemo(() => {
     let result = [...notes];
-
-    // Filter by status
     if (filter === "pinned") result = result.filter(n => n.pinned);
     else if (filter === "archived") result = result.filter(n => n.archived);
     else result = result.filter(n => !n.archived);
-
-    // Search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(n =>
@@ -46,7 +43,6 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
         n.tags.some(t => t.toLowerCase().includes(q))
       );
     }
-
     return result;
   }, [notes, searchQuery, filter]);
 
@@ -137,7 +133,7 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
           <button onClick={() => setMode("grid")}
             className={`p-2 rounded-lg transition-colors ${mode === "grid" ? "bg-primary-600/20 text-primary-300" : "bg-white/5 text-slate-400 hover:bg-white/10"}`}
             title="Grid view">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h6v6H4zm10 h6v6h-6zM4 14h6v6H4zm10 h6v6h-6z" /></svg>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z" /></svg>
           </button>
         </div>
       </div>
@@ -162,15 +158,14 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
           </p>
         </div>
       ) : mode === "list" ? (
-        /* ── List View ── */
         <div className="space-y-2">
           {filtered.map(note => (
             <div key={note.id}
               className="group flex items-start gap-3 p-4 bg-white/5 border border-white/10 rounded-xl hover:border-white/20 transition-all">
-              <div className="flex-1 min-w-">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   {note.pinned && (
-                    <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
                     </svg>
                   )}
@@ -196,7 +191,7 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-1 opacity- group-hover:opacity-100 transition-opacity flex-shrink-">
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                 <button onClick={() => togglePin(note)}
                   className={`p-1.5 rounded-lg transition-colors ${note.pinned ? "text-yellow-400 hover:text-yellow-300" : "text-slate-600 hover:text-yellow-400 hover:bg-yellow-500/10"}`}
                   title={note.pinned ? "Unpin" : "Pin"}>
@@ -215,7 +210,7 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
                   className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10"
                   title="Delete">
                   {isDeleting === note.id ? (
-                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /></svg>
                   ) : (
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   )}
@@ -225,17 +220,16 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
           ))}
         </div>
       ) : (
-        /* ── Grid View ── */
         <div className="grid grid-cols-12 gap-4">
           {filtered.map(note => (
             <div key={note.id}
               className="col-span-12 sm:col-span-6 lg:col-span-4 bg-white/5 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all group">
               <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="flex items-center gap-1.5 min-w- flex-1">
-                  {note.pinned && <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>}
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                  {note.pinned && <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>}
                   <Link href={`/notes?id=${note.id}`} className="text-sm font-medium text-white hover:text-primary-400 transition-colors truncate block">{note.title || "Untitled Note"}</Link>
                 </div>
-                <div className="flex items-center gap-1 opacity- group-hover:opacity-100 transition-opacity flex-shrink-">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                   <button onClick={() => togglePin(note)} className={`p-1 rounded-lg ${note.pinned ? "text-yellow-400" : "text-slate-600 hover:text-yellow-400"}`}>
                     <svg className="w-3.5 h-3.5" fill={note.pinned ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>
                   </button>
