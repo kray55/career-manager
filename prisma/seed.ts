@@ -17,7 +17,7 @@ async function main() {
     create: {
       name: 'Acme Corp',
       slug: 'acme-corp',
-      domain: 'localhost:3000',
+      
     },
   });
   console.log(`✅ Tenant created: ${tenant.name} (${tenant.id})`);
