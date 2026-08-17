@@ -67,10 +67,12 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
   const insertGalleryImage = useCallback((image: { dataUrl: string; name: string }) => {
     if (!editorRef.current) { toast.error("Click inside the document editor first"); return; }
     editorRef.current.chain().focus().setImage({ src: image.dataUrl, alt: image.name }).run();
-    setEditingDoc((current) => current ? { ...current, content: editorRef.current.getHTML() } : current);
+    const html = editorRef.current.getHTML();
+    if (editingDoc) setEditingDoc((current) => current ? { ...current, content: html } : current);
+    else setNewContent(html);
     setShowGallery(false);
     toast.success("Image inserted into document");
-  }, []);
+  }, [editingDoc]);
 
   // New doc state
   const [newTitle, setNewTitle] = useState("");
@@ -212,7 +214,8 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
               </div>
               <div>
                 <label className="block text-xs text-slate-500 mb-1">Content</label>
-                <NoteEditor initialContent={newContent} onChange={setNewContent} minHeight="250px" placeholder="Write your document content..." />
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-3"><div><p className="text-sm font-medium text-cyan-100">Add images to this document</p><p className="text-xs text-slate-400">Choose from Image Gallery or upload a local image before creating the document.</p></div><button onClick={openGallery} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-100 hover:bg-cyan-400/20">+ Add Image</button></div>
+                <NoteEditor initialContent={newContent} onChange={setNewContent} onEditorReady={(editor) => { editorRef.current = editor; }} minHeight="250px" placeholder="Write your document content..." />
               </div>
               <div className="flex gap-2">
                 <button onClick={handleCreate} disabled={saveStatus === "saving" || !newTitle.trim()}
