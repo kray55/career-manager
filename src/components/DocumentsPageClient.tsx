@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
@@ -21,6 +21,9 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
   const [showNewDoc, setShowNewDoc] = useState(false);
   const [editingDoc, setEditingDoc] = useState<DocumentItem | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
+  const [showGallery, setShowGallery] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<Array<{ id: string; name: string; dataUrl: string; width: number; height: number }>>([]);
+  const editorRef = useRef<any>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,6 +32,20 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
     const selected = documents.find((document) => document.id === id);
     if (selected) setEditingDoc(selected);
   }, [router.query.id, documents, editingDoc?.id]);
+
+  const openGallery = useCallback(async () => {
+    const response = await fetch("/api/images");
+    if (response.ok) { setGalleryImages((await response.json()).images || []); setShowGallery(true); }
+    else toast.error("Unable to load Image Gallery");
+  }, []);
+
+  const insertGalleryImage = useCallback((image: { dataUrl: string; name: string }) => {
+    if (!editorRef.current) { toast.error("Click inside the document editor first"); return; }
+    editorRef.current.chain().focus().setImage({ src: image.dataUrl, alt: image.name }).run();
+    setEditingDoc((current) => current ? { ...current, content: editorRef.current.getHTML() } : current);
+    setShowGallery(false);
+    toast.success("Image inserted into document");
+  }, []);
 
   // New doc state
   const [newTitle, setNewTitle] = useState("");
@@ -204,7 +221,8 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
                   <option value="other">Other</option>
                 </select>
               </div>
-              <NoteEditor initialContent={editingDoc.content} onChange={(html) => setEditingDoc({ ...editingDoc, content: html })} minHeight="300px" />
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-3"><div><p className="text-sm font-medium text-cyan-100">Add visual context</p><p className="text-xs text-slate-400">Insert a saved image without leaving this document.</p></div><button onClick={openGallery} className="rounded-lg border border-cyan-300/30 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-100 hover:bg-cyan-400/20">+ Add from Image Gallery</button></div>
+              <NoteEditor initialContent={editingDoc.content} onChange={(html) => setEditingDoc({ ...editingDoc, content: html })} onEditorReady={(editor) => { editorRef.current = editor; }} minHeight="300px" />
               <div className="flex gap-2">
                 <button onClick={handleSaveEdit} disabled={saveStatus === "saving"}
                   className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-700 text-white text-sm font-medium rounded-lg">
@@ -215,6 +233,15 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {showGallery && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" onClick={() => setShowGallery(false)}>
+            <div className="max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+              <div className="flex items-center justify-between gap-4"><div><h3 className="text-xl font-semibold text-white">Insert from Image Gallery</h3><p className="mt-1 text-sm text-slate-400">Choose a saved image to place at the current editor position.</p></div><button onClick={() => setShowGallery(false)} className="rounded-lg px-3 py-2 text-slate-400 hover:bg-white/10 hover:text-white">Close</button></div>
+              {galleryImages.length ? <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{galleryImages.map(image => <button key={image.id} onClick={() => insertGalleryImage(image)} className="overflow-hidden rounded-xl border border-white/10 bg-white/5 text-left transition hover:border-cyan-300/50 hover:bg-cyan-400/10"><div className="aspect-[4/3] bg-slate-950/60"><img src={image.dataUrl} alt={image.name} className="h-full w-full object-contain" /></div><div className="p-3"><p className="truncate text-sm font-medium text-white">{image.name}</p><p className="mt-1 text-xs text-slate-500">{image.width} × {image.height}px</p></div></button>)}</div> : <div className="mt-6 rounded-xl border border-dashed border-white/10 p-10 text-center"><p className="text-sm text-slate-400">Your gallery is empty.</p><a href="/image-gallery" className="mt-2 inline-block text-sm text-cyan-300 hover:text-cyan-200">Open Image Gallery to add an image →</a></div>}
             </div>
           </div>
         )}

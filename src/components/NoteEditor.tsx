@@ -14,6 +14,7 @@ import TaskItem from "@tiptap/extension-task-item";
 import Typography from "@tiptap/extension-typography";
 import TextAlign from "@tiptap/extension-text-align";
 import CharacterCount from "@tiptap/extension-character-count";
+import Image from "@tiptap/extension-image";
 
 interface NoteEditorProps {
   initialContent?: string;
@@ -21,6 +22,7 @@ interface NoteEditorProps {
   editable?: boolean;
   minHeight?: string;
   placeholder?: string;
+  onEditorReady?: (editor: any) => void;
 }
 
 export default function NoteEditor({
@@ -29,6 +31,7 @@ export default function NoteEditor({
   editable = true,
   minHeight = "300px",
   placeholder = "Start writing your note...",
+  onEditorReady,
 }: NoteEditorProps) {
   const [isReady, setIsReady] = useState(false);
 
@@ -49,6 +52,7 @@ export default function NoteEditor({
       Typography,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       CharacterCount,
+      Image.configure({ inline: false, allowBase64: true, HTMLAttributes: { class: "max-w-full rounded-xl shadow-lg" } }),
     ],
     content: initialContent || "",
     editable,
@@ -60,7 +64,7 @@ export default function NoteEditor({
     },
   } as any) as any;
 
-  useEffect(() => { if (editor) setIsReady(true); }, [editor]);
+  useEffect(() => { if (editor) { setIsReady(true); onEditorReady?.(editor); } }, [editor, onEditorReady]);
 
   useEffect(() => {
     if (editor && initialContent && !editor.isDestroyed) {
