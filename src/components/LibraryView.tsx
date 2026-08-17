@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 // Use client helpers to avoid bundling server-only prisma
 import { deleteBookmarkClient, updateBookmarkClient } from "@/actions/bookmark.client";
 
-interface Bookmark { id: string; url: string; title: string; description: string | null; favicon: string | null; tags: string[]; isFavorite: boolean; createdAt: string; updatedAt: string }
+interface Bookmark { id: string; url: string; title: string; description: string | null; favicon: string | null; emoji?: string | null; tags: string[]; isFavorite: boolean; createdAt: string; updatedAt: string }
 
 interface Props { bookmarks: Bookmark[] }
 
@@ -14,6 +14,23 @@ export default function LibraryView({ bookmarks: initial }: Props) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>(initial);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newBookmark, setNewBookmark] = useState({ url: "", title: "", description: "", emoji: "🔖", tags: "" });
+  const [isAdding, setIsAdding] = useState(false);
+
+  const addBookmark = useCallback(async () => {
+    if (!newBookmark.url || !newBookmark.title) { toast.error("Add a URL and title first"); return; }
+    setIsAdding(true);
+    try {
+      const response = await fetch("/api/bookmarks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...newBookmark, tags: newBookmark.tags.split(",").map((tag) => tag.trim()).filter(Boolean) }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to save bookmark");
+      setBookmarks((current) => [data, ...current]);
+      setNewBookmark({ url: "", title: "", description: "", emoji: "🔖", tags: "" });
+      setShowAdd(false);
+      toast.success("Bookmark saved");
+    } catch (error: any) { toast.error(error.message || "Failed to save bookmark"); } finally { setIsAdding(false); }
+  }, [newBookmark]);
 
   const filtered = useMemo(() => {
     if (!searchQuery.trim()) return bookmarks;
@@ -73,7 +90,10 @@ export default function LibraryView({ bookmarks: initial }: Props) {
             <h1 className="text-2xl font-bold text-white">My Bookmarks</h1>
             <p className="text-slate-400 text-sm mt-1">{bookmarks.length} bookmark{bookmarks.length !== 1 ? "s" : ""} saved</p>
           </div>
+          <button onClick={() => setShowAdd((value) => !value)} className="rounded-xl bg-gradient-to-r from-primary-500 to-indigo-600 px-4 py-2 text-sm font-semibold text-white">{showAdd ? "Close form" : "+ Add bookmark"}</button>
         </div>
+
+        {showAdd && <div className="mb-6 rounded-2xl border border-primary-400/20 bg-white/5 p-5 shadow-xl"><div className="mb-4 flex items-center gap-3"><span className="text-3xl">{newBookmark.emoji || "🔖"}</span><div><h2 className="font-semibold text-white">Add to your career library</h2><p className="text-xs text-slate-400">Use an emoji to identify the opportunity at a glance.</p></div></div><div className="grid gap-3 sm:grid-cols-2"><input value={newBookmark.url} onChange={(e) => setNewBookmark((value) => ({ ...value, url: e.target.value }))} placeholder="https://job-board.com/role" className="rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white" /><input value={newBookmark.title} onChange={(e) => setNewBookmark((value) => ({ ...value, title: e.target.value }))} placeholder="Opportunity title" className="rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white" /><input value={newBookmark.emoji} onChange={(e) => setNewBookmark((value) => ({ ...value, emoji: e.target.value.slice(0, 2) }))} placeholder="🔖" className="rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white" /><input value={newBookmark.tags} onChange={(e) => setNewBookmark((value) => ({ ...value, tags: e.target.value }))} placeholder="tags, comma separated" className="rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white" /></div><textarea value={newBookmark.description} onChange={(e) => setNewBookmark((value) => ({ ...value, description: e.target.value }))} placeholder="Why this opportunity matters" className="mt-3 min-h-20 w-full rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white" /><button disabled={isAdding} onClick={addBookmark} className="mt-3 rounded-xl bg-primary-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{isAdding ? "Saving..." : "Save bookmark"}</button></div>}
 
         <div className="relative mb-6">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,10 +121,11 @@ export default function LibraryView({ bookmarks: initial }: Props) {
             {filtered.map(bm => (
               <div key={bm.id} className="col-span-12 sm:col-span-6 lg:col-span-4 bg-white/5 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all group">
                 <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex min-w-0 flex-1 items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-500/15 text-xl">{bm.emoji || "🔖"}</span>
                   <div className="min-w-0 flex-1">
                     <a href={bm.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-white hover:text-primary-400 transition-colors line-clamp-2 block">{bm.title}</a>
                     <p className="text-xs text-slate-500 mt-0.5 truncate">{getDomain(bm.url)}</p>
-                  </div>
+                  </div></div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button onClick={() => toggleFav(bm)} className={`p-1.5 rounded-lg transition-colors ${bm.isFavorite ? "text-yellow-400 hover:text-yellow-300 bg-yellow-500/10" : "text-slate-600 hover:text-yellow-400 hover:bg-yellow-500/10"}`}>
                       <svg className="w-4 h-4" fill={bm.isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">

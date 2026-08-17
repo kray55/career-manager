@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/router";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -20,6 +21,14 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
   const [showNewDoc, setShowNewDoc] = useState(false);
   const [editingDoc, setEditingDoc] = useState<DocumentItem | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
+  const router = useRouter();
+
+  useEffect(() => {
+    const id = typeof router.query.id === "string" ? router.query.id : "";
+    if (!id || editingDoc?.id === id) return;
+    const selected = documents.find((document) => document.id === id);
+    if (selected) setEditingDoc(selected);
+  }, [router.query.id, documents, editingDoc?.id]);
 
   // New doc state
   const [newTitle, setNewTitle] = useState("");
@@ -201,7 +210,7 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
                   className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-700 text-white text-sm font-medium rounded-lg">
                   {saveStatus === "saving" ? "Saving..." : "Save Changes"}
                 </button>
-                <button onClick={() => setEditingDoc(null)}
+                <button onClick={() => { setEditingDoc(null); router.push("/documents", undefined, { shallow: true }); }}
                   className="px-4 py-2 bg-slate-800 text-slate-300 text-sm rounded-lg hover:text-white">
                   Cancel
                 </button>

@@ -48,6 +48,7 @@ model Tenant {
   documents Document[]
   resumes   Resume[]
   contacts  Contact[]
+  emailLogs EmailLog[]
 }
 
 model User {
@@ -74,6 +75,7 @@ model User {
   skills    Skill[]
   checkins  Checkin[]
   resumes   Resume[]
+  emailLogs EmailLog[]
 
   @@index([tenantId])
   @@index([email])
@@ -128,6 +130,7 @@ model Bookmark {
   title       String
   description String?          @db.Text
   favicon     String?
+  emoji       String?
   tags        String[]
   isFavorite  Boolean          @default(false)
   category    BookmarkCategory @default(OTHER)
@@ -261,6 +264,27 @@ model Contact {
 // ──────────────────────────────────────────────
 // Skill Tracking
 // ──────────────────────────────────────────────
+
+model EmailLog {
+  id        String    @id @default(cuid())
+  tenantId  String
+  userId    String
+  to        String
+  subject   String
+  html      String    @db.Text
+  status    String
+  errorMsg  String?   @db.Text
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([to])
+  @@index([createdAt])
+}
 
 model Skill {
   id        String   @id @default(cuid())
