@@ -23,6 +23,8 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
   const [showGallery, setShowGallery] = useState(false);
   const [galleryImages, setGalleryImages] = useState<Array<{ id: string; name: string; dataUrl: string; width: number; height: number }>>([]);
+  const [localImage, setLocalImage] = useState<{ name: string; dataUrl: string; width: number; height: number } | null>(null);
+  const localImageInput = useRef<HTMLInputElement>(null);
   const editorRef = useRef<any>(null);
   const router = useRouter();
 
@@ -38,6 +40,29 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
     if (response.ok) { setGalleryImages((await response.json()).images || []); setShowGallery(true); }
     else toast.error("Unable to load Image Gallery");
   }, []);
+
+  const handleLocalImage = useCallback((file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Choose a valid image file"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("Images must be smaller than 10MB"); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      const image = new Image();
+      image.onload = () => setLocalImage({ name: file.name.replace(/\\.[^/.]+$/, ""), dataUrl, width: image.naturalWidth, height: image.naturalHeight });
+      image.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
+  const saveLocalToGallery = useCallback(async () => {
+    if (!localImage) return;
+    const response = await fetch("/api/images", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: localImage.name, dataUrl: localImage.dataUrl, mimeType: "image/jpeg", width: localImage.width, height: localImage.height }) });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) { toast.error(result.error || "Could not save image"); return; }
+    setGalleryImages((current) => [result.image, ...current]);
+    toast.success("Image saved to Image Gallery");
+  }, [localImage]);
 
   const insertGalleryImage = useCallback((image: { dataUrl: string; name: string }) => {
     if (!editorRef.current) { toast.error("Click inside the document editor first"); return; }
@@ -241,6 +266,7 @@ export default function DocumentsPageClient({ user, initialDocuments }: Props) {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm" onClick={() => setShowGallery(false)}>
             <div className="max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
               <div className="flex items-center justify-between gap-4"><div><h3 className="text-xl font-semibold text-white">Insert from Image Gallery</h3><p className="mt-1 text-sm text-slate-400">Choose a saved image to place at the current editor position.</p></div><button onClick={() => setShowGallery(false)} className="rounded-lg px-3 py-2 text-slate-400 hover:bg-white/10 hover:text-white">Close</button></div>
+              <div className="mt-6 rounded-xl border border-cyan-400/15 bg-cyan-400/5 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm font-medium text-cyan-100">Upload from this device</p><p className="mt-1 text-xs text-slate-400">Browse local files, preview the image, then insert it or save it to your gallery.</p></div><button onClick={() => localImageInput.current?.click()} className="rounded-lg bg-cyan-500 px-3 py-2 text-xs font-semibold text-slate-950">Browse local files</button><input ref={localImageInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={(event) => handleLocalImage(event.target.files?.[0])} /></div>{localImage && <div className="mt-4 flex flex-col gap-3 rounded-lg border border-white/10 bg-slate-950/40 p-3 sm:flex-row sm:items-center"><img src={localImage.dataUrl} alt={localImage.name} className="h-24 w-32 rounded object-contain bg-slate-950" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-white">{localImage.name}</p><p className="text-xs text-slate-500">{localImage.width} × {localImage.height}px</p></div><div className="flex gap-2"><button onClick={() => insertGalleryImage(localImage)} className="rounded-lg border border-cyan-300/30 px-3 py-2 text-xs text-cyan-100">Insert</button><button onClick={saveLocalToGallery} className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-200">Save to Gallery</button></div></div>}</div>
               {galleryImages.length ? <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{galleryImages.map(image => <button key={image.id} onClick={() => insertGalleryImage(image)} className="overflow-hidden rounded-xl border border-white/10 bg-white/5 text-left transition hover:border-cyan-300/50 hover:bg-cyan-400/10"><div className="aspect-[4/3] bg-slate-950/60"><img src={image.dataUrl} alt={image.name} className="h-full w-full object-contain" /></div><div className="p-3"><p className="truncate text-sm font-medium text-white">{image.name}</p><p className="mt-1 text-xs text-slate-500">{image.width} × {image.height}px</p></div></button>)}</div> : <div className="mt-6 rounded-xl border border-dashed border-white/10 p-10 text-center"><p className="text-sm text-slate-400">Your gallery is empty.</p><a href="/image-gallery" className="mt-2 inline-block text-sm text-cyan-300 hover:text-cyan-200">Open Image Gallery to add an image →</a></div>}
             </div>
           </div>
