@@ -19,6 +19,7 @@ interface Template {
   icon: string;
   color: string;
   content: string;
+  category?: string;
 }
 
 const TEMPLATES: Template[] = [
@@ -77,6 +78,19 @@ const TEMPLATES: Template[] = [
     content: "<h2>Subject: Thank You — [Job Title] Interview</h2><hr/><p>Dear [Interviewer Name],</p><br/><p>Thank you so much for taking the time to meet with me today to discuss the <strong>[Job Title]</strong> role at <strong>[Company Name]</strong>. I really enjoyed learning more about the team and the exciting work you are doing.</p><br/><p>Best regards,<br/>Your Name</p>",
   },
 ];
+
+const makeWorkflowTemplate = (title: string, icon: string, category: string, type = "document"): Template => ({ id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"), title, description: `A reusable ${category.toLowerCase()} workspace for planning, documenting, and moving work forward.`, type, icon, color: category === "Marketing" ? "purple" : category === "Technical" ? "blue" : category === "Project" ? "indigo" : category === "HR" ? "teal" : "primary", category, content: `<h1>${title}</h1><p><strong>Purpose:</strong> Define the outcome, audience, and next action.</p><h2>Context</h2><p>Add the background, stakeholders, and important assumptions.</p><h2>Key Details</h2><ul><li>Objective</li><li>Owner</li><li>Timeline</li><li>Measures of success</li></ul><h2>Next Actions</h2><p>Record the next decision or action required.</p>` });
+
+const REPORT_TEMPLATES: Template[] = [
+  { id: "research-report", title: "Research Report", description: "A decision-ready research report with table of contents, executive summary, SWOT analysis, resources, recommendations, and appendices.", type: "document", icon: "M4 5h16v14H4z", color: "blue", category: "Technical", content: "<h1>Research Report</h1><h2>Table of Contents</h2><ol><li>Executive Summary</li><li>Research Questions & Method</li><li>Findings</li><li>SWOT Analysis</li><li>Resources</li><li>Recommendations</li><li>Appendix</li></ol><h2>Executive Summary</h2><p>Summarize the most important findings and why they matter.</p><h2>Research Questions & Method</h2><p>Define the questions, sources, scope, and limitations.</p><h2>Findings</h2><p>Present evidence, patterns, and implications.</p><h2>SWOT Analysis</h2><h3>Strengths</h3><p></p><h3>Weaknesses</h3><p></p><h3>Opportunities</h3><p></p><h3>Threats</h3><p></p><h2>Resources</h2><ul><li>Source and link</li></ul><h2>Recommendations</h2><ol><li>Recommendation, owner, timing, and expected outcome</li></ol>" },
+  { id: "business-report", title: "Business Report", description: "A professional business report for leadership decisions, including executive summary, SWOT analysis, resources, recommendations, and action plan.", type: "document", icon: "M4 5h16v14H4z", color: "green", category: "Business", content: "<h1>Business Report</h1><h2>Table of Contents</h2><ol><li>Executive Summary</li><li>Business Context</li><li>Performance & Evidence</li><li>SWOT Analysis</li><li>Resources</li><li>Recommendations</li><li>Implementation Plan</li></ol><h2>Executive Summary</h2><p>State the decision, commercial context, and recommended direction.</p><h2>Business Context</h2><p>Describe the market, customer, objective, and constraints.</p><h2>Performance & Evidence</h2><p>Add metrics, observations, and supporting analysis.</p><h2>SWOT Analysis</h2><p>Strengths: </p><p>Weaknesses: </p><p>Opportunities: </p><p>Threats: </p><h2>Resources</h2><ul><li>Financial, market, operational, or customer source</li></ul><h2>Recommendations</h2><ol><li>Action, owner, cost, timing, and success measure</li></ol><h2>Implementation Plan</h2><p>Define milestones, risks, dependencies, and review dates.</p>" }
+];
+
+const WORKFLOW_TEMPLATES: Template[] = [
+  ["Account Plan","🏢","Business"],["Animal Tracker","🐾","Personal"],["Blog Post","✍️","Marketing"],["Business Proposal","💼","Business"],["Campaign Brief","📣","Marketing"],["Case Study","📊","Marketing"],["Class Notes","📖","Personal"],["Competitive Analysis","⚔️","Business"],["Contacts","👥","HR"],["Content Calendar","📅","Marketing"],["Decision Log","📝","Business"],["Event Planner","🎉","Personal"],["FAQs","❓","Technical"],["Feedback Tracker","💬","HR"],["Interview Guide","🎤","HR"],["Journal","📔","Personal"],["Marketing Plan","📈","Marketing"],["Meeting Notes","🤝","Business"],["Memo","📄","Business"],["Newsletter","📰","Marketing"],["Onboarding","🚀","HR"],["Pitch","🎯","Business"],["Press Release","📡","Marketing"],["Product Requirements","⚙️","Technical"],["Project Brief","📋","Project"],["Project Kickoff","🏁","Project"],["Project Roadmap","🗺️","Project"],["Project Schedule","📆","Project"],["Project Tracker","✅","Project"],["Project Wiki","📚","Project"],["Quarterly Planner","📊","Business"],["Reading List","📚","Personal"],["Sales Emails","📧","Marketing"],["Team Stand-up","🙋","HR"],["Technical Guide","🔧","Technical"],["To-Do List","☑️","Personal"],["Training Manual","🎓","HR"],["Travel Planner","✈️","Personal"]
+].map(([title, icon, category]) => makeWorkflowTemplate(title, icon, category));
+
+const ALL_TEMPLATES = [...TEMPLATES, ...REPORT_TEMPLATES, ...WORKFLOW_TEMPLATES];
 
 const COLOR_MAP: Record<string, { bg: string; text: string; hover: string; gradient: string }> = {
   green: { bg: "bg-green-500/20", text: "text-green-400", hover: "hover:bg-green-500/30", gradient: "from-green-500 to-green-700" },
@@ -140,7 +154,7 @@ export default function TemplatesPageClient({ user }: Props) {
 
         {/* Template Cards */}
         <div className="grid grid-cols-12 gap-6">
-          {TEMPLATES.map(tmpl => {
+          {ALL_TEMPLATES.map(tmpl => {
             const c = COLOR_MAP[tmpl.color] || COLOR_MAP.primary;
             return (
               <div key={tmpl.id}
@@ -154,7 +168,7 @@ export default function TemplatesPageClient({ user }: Props) {
                 <h3 className="text-white font-semibold mb-1">{tmpl.title}</h3>
                 <p className="text-xs text-slate-400 mb-4 line-clamp-2">{tmpl.description}</p>
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${c.text} ${c.bg}`}>{tmpl.type === "coverLetter" ? "Cover Letter" : tmpl.type}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${c.text} ${c.bg}`}>{tmpl.category || (tmpl.type === "coverLetter" ? "Cover Letter" : tmpl.type)}</span>
                   <button onClick={(e) => { e.stopPropagation(); useTemplate(tmpl); }}
                     disabled={creating}
                     className={`ml-auto text-xs px-3 py-1.5 bg-gradient-to-r ${c.gradient} text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50`}>

@@ -40,15 +40,18 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users     User[]
-  accounts  Account[]
-  sessions  Session[]
-  bookmarks Bookmark[]
-  notes     Note[]
-  documents Document[]
-  resumes   Resume[]
-  contacts  Contact[]
-  emailLogs EmailLog[]
+  users             User[]
+  accounts          Account[]
+  sessions          Session[]
+  bookmarks         Bookmark[]
+  notes             Note[]
+  documents         Document[]
+  resumes           Resume[]
+  contacts          Contact[]
+  emailLogs         EmailLog[]
+  affiliateLinks    AffiliateLink[]
+  affiliateEarnings AffiliateEarning[]
+  reportLogs        ReportLog[]
 }
 
 model User {
@@ -66,16 +69,17 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  accounts  Account[]
-  sessions  Session[]
-  bookmarks Bookmark[]
-  notes     Note[]
-  documents Document[]
-  skills    Skill[]
-  checkins  Checkin[]
-  resumes   Resume[]
-  emailLogs EmailLog[]
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  accounts       Account[]
+  sessions       Session[]
+  bookmarks      Bookmark[]
+  notes          Note[]
+  documents      Document[]
+  skills         Skill[]
+  checkins       Checkin[]
+  resumes        Resume[]
+  emailLogs      EmailLog[]
+  affiliateLinks AffiliateLink[]
 
   @@index([tenantId])
   @@index([email])
@@ -283,6 +287,54 @@ model EmailLog {
   @@index([tenantId])
   @@index([userId])
   @@index([to])
+  @@index([createdAt])
+}
+
+model AffiliateLink {
+  id             String   @id @default(cuid())
+  tenantId       String
+  userId         String
+  referralCode   String   @unique
+  destinationUrl String   @default("/store")
+  clicks         Int      @default(0)
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model AffiliateEarning {
+  id               String   @id @default(cuid())
+  tenantId         String
+  affiliateLinkId  String
+  commissionAmount Int
+  totalAmount      Int
+  currency         String   @default("usd")
+  customerEmail    String?
+  createdAt        DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([affiliateLinkId])
+}
+
+model ReportLog {
+  id        String   @id @default(cuid())
+  tenantId  String
+  type      String
+  grantName String?
+  status    String   @default("COMPLETED")
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
   @@index([createdAt])
 }
 
