@@ -40,50 +40,73 @@ export default function NotesPageClient({ user, initialNotes }: Props) {
   const handleCreate = useCallback(async () => {
     if (!newTitle.trim()) { toast.error("Title is required"); return; }
     setSaveStatus("saving");
-    const r = await createNoteClient({
-      title: newTitle.trim(),
-      content: newContent,
-      tags: newTags.split(",").map(t => t.trim()).filter(Boolean),
-      jobUrl: newJobUrl.trim() || null,
-    });
-    if (r.success) {
-      const newNote: NoteItem = {
-        id: r.data.id,
-        title: r.data.title,
-        content: r.data.content,
-        tags: r.data.tags || [],
-        jobUrl: r.data.jobUrl || null,
-        pinned: false,
-        archived: false,
-        createdAt: r.data.createdAt,
-        updatedAt: r.data.updatedAt,
-      };
-      setNotes(prev => [newNote, ...prev]);
-      setNewTitle("");
-      setNewContent("");
-      setNewTags("");
-      setNewJobUrl("");
-      setShowNewNote(false);
-      toast.success("Note created!");
-    } else toast.error(r.error || "Failed to create note");
-    setSaveStatus("idle");
+    try {
+      const note = await createNoteClient({
+        title: newTitle.trim(),
+        content: newContent,
+        tags: newTags.split(",").map(t => t.trim()).filter(Boolean),
+        jobUrl: newJobUrl.trim() || null,
+      });
+
+      // createNoteClient returns the created note object from the API
+      if (note && (note as any).id) {
+        const r = note as any;
+        const newNote: NoteItem = {
+          id: r.id,
+          title: r.title,
+          content: r.content,
+          tags: r.tags || [],
+          jobUrl: r.jobUrl || null,
+          pinned: r.pinned || false,
+          archived: r.archived || false,
+          createdAt: r.createdAt,
+          updatedAt: r.updatedAt,
+        };
+        setNotes(prev => [newNote, ...prev]);
+        setNewTitle("");
+        setNewContent("");
+        setNewTags("");
+        setNewJobUrl("");
+        setShowNewNote(false);
+        toast.success("Note created!");
+      } else {
+        toast.error("Failed to create note");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to create note");
+    } finally {
+      setSaveStatus("idle");
+    }
   }, [newTitle, newContent, newTags, newJobUrl]);
 
   const handleSaveEdit = useCallback(async () => {
     if (!editingNote) return;
     setSaveStatus("saving");
-    const r = await updateNoteClient(editingNote.id, {
-      title: editingNote.title,
-      content: editingNote.content,
-      tags: typeof editingNote.tags === "string" ? (editingNote.tags as any).split(",").map((t: string) => t.trim()).filter(Boolean) : editingNote.tags,
-      jobUrl: editingNote.jobUrl,
-    });
-    if (r.success) {
-      setNotes(prev => prev.map(n => n.id === editingNote.id ? { ...editingNote } : n));
-      toast.success("Note saved!");
-      setEditingNote(null);
-    } else toast.error(r.error || "Failed to save");
-    setSaveStatus("idle");
+    try {
+      const note = await updateNoteClient(editingNote.id, {
+        title: editingNote.title,
+        content: editingNote.content,
+        tags: typeof editingNote.tags === "string" ? (editingNote.tags as any).split(",").map((t: string) => t.trim()).filter(Boolean) : editingNote.tags,
+        jobUrl: editingNote.jobUrl,
+      });
+
+      if (note && (note as any).id) {
+        setNotes(prev => prev.map(n => n.id === editingNote.id ? { ...editingNote } : n));
+        toast.success("Note saved!");
+        setEditingNote(null);
+      } else if (note && (note as any).success) {
+        // some APIs return { success: true, data: updated }
+        setNotes(prev => prev.map(n => n.id === editingNote.id ? { ...editingNote } : n));
+        toast.success("Note saved!");
+        setEditingNote(null);
+      } else {
+        toast.error("Failed to save");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save");
+    } finally {
+      setSaveStatus("idle");
+    }
   }, [editingNote]);
 
   return (
