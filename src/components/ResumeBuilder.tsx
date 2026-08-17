@@ -79,13 +79,22 @@ interface ResumeBuilderProps {
 // Component
 // ──────────────────────────────────────────────
 
+function normalizeResumeData(input?: Partial<ResumeData>): ResumeData {
+  return {
+    header: { ...defaultResume.header, ...(input?.header || {}) },
+    experience: Array.isArray(input?.experience) ? input!.experience! : [],
+    education: Array.isArray(input?.education) ? input!.education! : [],
+    skills: Array.isArray(input?.skills) ? input!.skills! : [],
+  };
+}
+
 export default function ResumeBuilder({
   initialData,
   onSave,
   onExport,
   exporting = false,
 }: ResumeBuilderProps) {
-  const [data, setData] = useState<ResumeData>(initialData ?? defaultResume);
+  const [data, setData] = useState<ResumeData>(() => normalizeResumeData(initialData));
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"header" | "experience" | "education" | "skills" | "preview">("header");
 
@@ -97,7 +106,7 @@ export default function ResumeBuilder({
   // ── Experience ──
   const addExperience = useCallback(() => {
     const newExp: ResumeExperience = {
-      id: crypto.randomUUID?.() ?? Math.random().toString(36).slice(2),
+      id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
       company: "",
       role: "",
       location: "",
@@ -154,7 +163,7 @@ export default function ResumeBuilder({
   // ── Education ──
   const addEducation = useCallback(() => {
     const newEdu: ResumeEducation = {
-      id: crypto.randomUUID?.() ?? Math.random().toString(36).slice(2),
+      id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
       institution: "",
       degree: "",
       field: "",
@@ -179,7 +188,7 @@ export default function ResumeBuilder({
   // ── Skills ──
   const addSkill = useCallback(() => {
     const newSkill: ResumeSkill = {
-      id: crypto.randomUUID?.() ?? Math.random().toString(36).slice(2),
+      id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
       name: "",
       level: "intermediate",
     };

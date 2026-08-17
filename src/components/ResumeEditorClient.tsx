@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import ResumeBuilder from "@/components/ResumeBuilder";
+import ResumeBuilder, { ResumeData } from "@/components/ResumeBuilder";
 // Use client helpers to avoid bundling server-only prisma
 import { createResumeClient, updateResumeClient, exportResumeToPDFClient } from "@/actions/resumes.client";
 
@@ -18,8 +18,16 @@ export default function ResumeEditorClient({ user, resume: initialResume }: Prop
   const [resume, setResume] = useState(initialResume);
   const [exporting, setExporting] = useState(false);
 
-  const initialData = resume?.content ? (() => {
-    try { return JSON.parse(resume.content); } catch { return undefined; }
+  const initialData: ResumeData | undefined = resume?.content ? (() => {
+    try {
+      const raw = JSON.parse(resume.content) || {};
+      return {
+        header: { fullName: "", email: "", phone: "", location: "", title: "", summary: "", ...(raw.header || {}) },
+        experience: Array.isArray(raw.experience) ? raw.experience : [],
+        education: Array.isArray(raw.education) ? raw.education : [],
+        skills: Array.isArray(raw.skills) ? raw.skills : [],
+      };
+    } catch { return undefined; }
   })() : undefined;
 
   const handleSave = useCallback(async (data: any) => {
