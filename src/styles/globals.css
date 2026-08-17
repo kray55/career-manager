@@ -4,34 +4,76 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 225 48% 7%;
+    --foreground: 210 40% 98%;
+    --card: 222 38% 12%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 42% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 250 95% 68%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 18%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 68%;
+    --accent: 190 95% 65%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --border: 215 28% 30%;
+    --input: 215 28% 25%;
+    --ring: 250 95% 68%;
+    --radius: 1rem;
   }
+
+  * { @apply border-border; }
+  html { background: hsl(var(--background)); scroll-behavior: smooth; }
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    background-image: radial-gradient(circle at 12% 8%, rgba(99,102,241,.18), transparent 30rem), radial-gradient(circle at 88% 18%, rgba(34,211,238,.10), transparent 28rem), linear-gradient(135deg,#0a1022 0%,#111a35 48%,#080d1d 100%);
+    background-attachment: fixed;
+  }
+  a { @apply transition-colors duration-200; }
+  button:active, a:active { transform: scale(.985); }
+  input, textarea, select { @apply bg-white/[0.06] text-slate-100 border-white/15 rounded-xl; }
+  input::placeholder, textarea::placeholder { color: rgba(148,163,184,.65); }
+  :focus-visible { outline: 2px solid rgba(129,140,248,.95); outline-offset: 3px; }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+@layer components {
+  .cm-glass { @apply border border-white/10 bg-white/[0.065] shadow-2xl backdrop-blur-xl; box-shadow: 0 24px 80px rgba(2,6,23,.24), inset 0 1px 0 rgba(255,255,255,.07); }
+  .cm-glass-soft { @apply border border-white/10 bg-white/[0.035] backdrop-blur-lg; }
+  .cm-page { @apply min-h-screen px-4 pb-16 pt-8 sm:px-6 lg:px-8; }
+  .cm-container { @apply mx-auto w-full max-w-7xl; }
+  .cm-eyebrow { @apply text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-cyan-300/80; }
+  .cm-gradient-text { @apply bg-gradient-to-r from-indigo-200 via-cyan-200 to-violet-300 bg-clip-text text-transparent; }
+  .cm-section-heading { @apply text-2xl font-semibold tracking-tight text-white sm:text-3xl; }
+  nav:not(#sidebar-toggle) { @apply border-white/10 bg-slate-950/55 backdrop-blur-2xl; box-shadow: 0 10px 50px rgba(2,6,23,.18); }
+  main { @apply relative; }
+  main h1, main h2, main h3 { @apply tracking-tight; }
+  main .bg-white\/5 { @apply bg-white/[0.065] backdrop-blur-xl; }
+  main .border-white\/10 { @apply border-white/10; }
+  .text-slate-400 { color: rgb(165 180 252 / .72); }
+  .text-slate-500 { color: rgb(148 163 184 / .72); }
+  .text-slate-600 { color: rgb(148 163 184 / .52); }
+}
+
+@layer utilities {
+  .cm-tap-target { min-height: 2.75rem; min-width: 2.75rem; }
+}
+
+@media (max-width: 767px) {
+  .cm-page { @apply px-3 pt-5; }
+  main { overflow-x: hidden; }
+  nav { min-height: 3.75rem; }
+  nav > div { @apply px-3; }
+  nav a, nav button { min-height: 2.75rem; }
+  main h1 { @apply text-2xl; }
+  main h2 { @apply text-xl; }
+  .grid { row-gap: 1rem; }
+  #sidebar-toggle { right: .75rem !important; top: 1rem !important; transform: none !important; width: 2.75rem !important; height: 2.75rem !important; border-radius: 999px !important; background: rgba(99,102,241,.82) !important; color: white !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
