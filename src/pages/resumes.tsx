@@ -15,6 +15,10 @@ export async function getServerSideProps(context: any) {
     resume = await prisma.resume.findFirst({
       where: { id, userId: user.id, tenantId: user.tenantId },
     });
+    if (!resume) {
+      const document = await prisma.document.findFirst({ where: { id, userId: user.id, tenantId: user.tenantId } });
+      if (document) return { redirect: { destination: `/documents?id=${document.id}`, permanent: false } };
+    }
   }
 
   return {
