@@ -15,7 +15,7 @@ export default function DashboardView({ user, stats }: Props) {
     { label: "Workspace", items: [["/dashboard", "Overview", "Your career command center"], ["/library", "Library & bookmarks", "Keep opportunities within reach"]] },
     { label: "Build", items: [["/notes", "Notes", "Turn research into action"], ["/documents", "Documents", "Organize your career files"], ["/templates", "Templates", "Start from a proven format"]] },
     { label: "Relationships", items: [["/crm-resumes", "Resumes", "Tailor your story for each role"], ["/crm-contacts", "Contacts & CRM", "Build momentum with your network"], ["/contact", "Email Hub", "Follow up with confidence"]] },
-    { label: "Resources", items: [["/store", "Career Store", "Discover tools for your next move"], ["/templates", "AI Generator", "Create polished career content"], ["/affiliate", "Affiliate Program", "Share resources and track commissions"]] },
+    { label: "Resources", items: [["/store", "Career Store", "Discover tools for your next move"], ["/templates", "AI Generator", "Create polished career content"], ["/affiliate", "Affiliate Program", "Share resources and track commissions"], ["/image-gallery", "Image Gallery", "Edit and reuse visuals in your documents"]] },
   ] as const;
 
   return (

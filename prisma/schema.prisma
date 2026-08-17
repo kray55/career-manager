@@ -52,6 +52,7 @@ model Tenant {
   affiliateLinks    AffiliateLink[]
   affiliateEarnings AffiliateEarning[]
   reportLogs        ReportLog[]
+  imageAssets       ImageAsset[]
 }
 
 model User {
@@ -80,6 +81,7 @@ model User {
   resumes        Resume[]
   emailLogs      EmailLog[]
   affiliateLinks AffiliateLink[]
+  imageAssets    ImageAsset[]
 
   @@index([tenantId])
   @@index([email])
@@ -287,6 +289,26 @@ model EmailLog {
   @@index([tenantId])
   @@index([userId])
   @@index([to])
+  @@index([createdAt])
+}
+
+model ImageAsset {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  name      String
+  dataUrl   String   @db.Text
+  mimeType  String
+  width     Int      @default(0)
+  height    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId])
   @@index([createdAt])
 }
 
