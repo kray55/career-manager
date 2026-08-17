@@ -1,15 +1,18 @@
-"use client";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 
 interface Bookmark { id: string; url: string; title: string; description: string | null; favicon: string | null; createdAt: string }
 
-/**
- * T3-B: SidebarRail - Floating sliding panel
- * Provides quick-access bookmark search and save capability
- * toggled via a floating button on the right edge.
- */
+const links = [
+  ["/dashboard", "Overview", "See your career command center"],
+  ["/library", "Library & bookmarks", "Keep every opportunity within reach"],
+  ["/notes", "Notes & documents", "Turn research into action"],
+  ["/crm-resumes", "Resume manager", "Tailor your story for every role"],
+  ["/crm-contacts", "Contacts & CRM", "Build momentum with your network"],
+  ["/store", "Career store", "Discover tools for your next move"],
+] as const;
+
 export default function SidebarRail() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -24,52 +27,33 @@ export default function SidebarRail() {
     setIsLoading(true);
     try {
       const res = await fetch("/api/bookmarks?limit=5");
-      if (res.ok) {
-        const data = await res.json();
-        setBookmarks(data.bookmarks || []);
-      }
-    } catch { /* ignore */ }
+      if (res.ok) setBookmarks((await res.json()).bookmarks || []);
+    } catch { /* network errors are surfaced by the next explicit action */ }
     finally { setIsLoading(false); }
   }, []);
 
+  useEffect(() => { if (isOpen) fetchBookmarks(); }, [isOpen, fetchBookmarks]);
   useEffect(() => {
-    if (isOpen) fetchBookmarks();
-  }, [isOpen, fetchBookmarks]);
-
-  // Close on escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsOpen(false); };
-    if (isOpen) document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [isOpen]);
-
-  // Close on click outside
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node) && !(e.target as HTMLElement)?.closest?.("#sidebar-toggle")) {
-        setIsOpen(false);
-      }
+    if (!isOpen) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setIsOpen(false); };
+    const onClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (panelRef.current && !panelRef.current.contains(target) && !target.closest("#sidebar-toggle")) setIsOpen(false);
     };
-    if (isOpen) setTimeout(() => document.addEventListener("click", handleClick), 0);
-    return () => document.removeEventListener("click", handleClick);
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("click", onClick);
+    return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("click", onClick); };
   }, [isOpen]);
 
   const handleSave = useCallback(async () => {
-    if (!url || !title) { toast.error("URL and title are required"); return; }
+    if (!url.trim() || !title.trim()) { toast.error("Add a URL and title to save this opportunity."); return; }
     setIsSaving(true);
     try {
-      const res = await fetch("/api/bookmarks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, title, description: "" }),
-      });
-      if (res.ok) {
-        toast.success("Bookmark saved! 📑");
-        setUrl("");
-        setTitle("");
-        fetchBookmarks();
-      } else { toast.error("Failed to save"); }
-    } catch { toast.error("Network error"); }
+      const res = await fetch("/api/bookmarks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, title, description: "" }) });
+      if (!res.ok) throw new Error("save failed");
+      toast.success("Saved to your career library");
+      setUrl(""); setTitle(""); fetchBookmarks();
+    } catch { toast.error("We could not save that bookmark. Please try again."); }
     finally { setIsSaving(false); }
   }, [url, title, fetchBookmarks]);
 
@@ -77,124 +61,41 @@ export default function SidebarRail() {
 
   return (
     <>
-      {/* Toggle Button */}
-      <button
-        id="sidebar-toggle"
-        onClick={() => setIsOpen(!isOpen)}
-        className={`fixed right-0 top-1/2 -translate-y-1/2 z-50 w-10 h-20 rounded-l-xl flex items-center justify-center shadow-lg transition-all ${
-          isOpen ? "bg-primary-600 text-white right-[420px]" : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
-        }`}
-        title={isOpen ? "Close sidebar" : "Open bookmark sidebar"}
-      >
-        <svg className={`w-5 h-5 transition-transform ${isOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
+      <button id="sidebar-toggle" type="button" aria-label={isOpen ? "Close career navigation" : "Open career navigation"} aria-expanded={isOpen} onClick={() => setIsOpen(value => !value)} className="fixed right-4 top-4 z-[60] flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-slate-900/75 text-white shadow-xl backdrop-blur-xl transition hover:bg-indigo-500/80">
+        {isOpen ? <span className="text-xl leading-none">×</span> : <span className="flex flex-col gap-1"><span className="h-0.5 w-5 bg-current" /><span className="h-0.5 w-5 bg-current" /><span className="h-0.5 w-5 bg-current" /></span>}
       </button>
 
-      {/* Sidebar Panel */}
-      <div
-        ref={panelRef}
-        className={`fixed right-0 top-0 h-full z-40 w-[400px] bg-slate-900 border-l border-white/10 shadow-2xl transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-            <div>
-              <h3 className="text-white font-semibold text-sm">Quick Save</h3>
-              <p className="text-xs text-slate-500">Career Library Sidebar</p>
-            </div>
-            <button onClick={() => setIsOpen(false)} className="p-1.5 text-slate-500 hover:text-white rounded-lg hover:bg-slate-800">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
+      <div className={`fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm transition-opacity duration-200 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!isOpen} />
+      <aside ref={panelRef} aria-label="Career Manager navigation" className={`fixed right-0 top-0 z-[55] flex h-full w-[min(92vw,25rem)] flex-col border-l border-white/10 bg-[#0b1228]/95 shadow-2xl backdrop-blur-2xl transition-transform duration-200 ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="border-b border-white/10 px-6 pb-5 pt-6">
+          <p className="cm-eyebrow">Career command center</p>
+          <h2 className="mt-2 text-xl font-semibold text-white">Move your next opportunity forward.</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-400">Save job leads, shape your story, and keep your momentum in one calm workspace.</p>
+        </div>
 
-          {/* Quick Save Form */}
-          <div className="p-5 border-b border-white/10">
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">URL</label>
-                <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://example.com/job-posting"
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500" />
-              </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-1">Title</label>
-                <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Software Engineer at Acme Corp"
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500" />
-              </div>
-              <button onClick={handleSave} disabled={isSaving || !url || !title}
-                className="w-full py-2 bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white text-sm font-medium rounded-lg disabled:opacity-50 flex items-center justify-center gap-2">
-                {isSaving ? <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg> : null}
-                {isSaving ? "Saving..." : "Save Bookmark"}
-              </button>
+        <div className="flex-1 overflow-y-auto px-4 py-5">
+          <nav aria-label="Primary navigation" className="space-y-1 bg-transparent shadow-none">
+            {links.map(([href, label, description]) => <a key={href} href={href} onClick={() => setIsOpen(false)} className="group block rounded-2xl px-3 py-3 hover:bg-white/10"><span className="block text-sm font-medium text-slate-100 group-hover:text-white">{label}</span><span className="mt-0.5 block text-xs text-slate-500 group-hover:text-slate-300">{description}</span></a>)}
+          </nav>
+
+          <div className="cm-glass mt-6 rounded-2xl p-4">
+            <p className="text-sm font-semibold text-white">Save a job lead</p>
+            <p className="mt-1 text-xs leading-5 text-slate-400">Capture a role while it is fresh. The Firefox sidebar can send opportunities here for persistent search.</p>
+            <div className="mt-4 space-y-3">
+              <input aria-label="Job or resource URL" type="url" value={url} onChange={event => setUrl(event.target.value)} placeholder="https://job-board.com/role" className="w-full px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-400" />
+              <input aria-label="Job or resource title" type="text" value={title} onChange={event => setTitle(event.target.value)} placeholder="Senior product role at Acme" className="w-full px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-400" />
+              <button type="button" onClick={handleSave} disabled={isSaving || !url || !title} className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-900/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">{isSaving ? "Saving…" : "Save to career library"}</button>
             </div>
           </div>
 
-          {/* Recent Bookmarks */}
-          <div className="flex-1 overflow-y-auto p-5">
-            {/* Navigation Links */}
-            <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Quick Nav</h4>
-            <div className="space-y-1 mb-6">
-              <a href="/notes" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                Notes
-              </a>
-              <a href="/documents" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                Documents
-              </a>
-              <a href="/templates" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 01-2 2H7a2 2 0 01-2-2m14 0V7a2 2 0 01-2-2H7a2 2 0 01-2 2v4" /></svg>
-                Templates
-              </a>
-              <a href="/crm-resumes" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                Resumes
-              </a>
-              <a href="/contact" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                Contact / Email
-              </a>
-              <a href="/crm-contacts" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                CRM Contacts
-              </a>
-              <a href="/store" className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                Store
-              </a>
-              <button onClick={() => {}} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors w-full text-left">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 00-2 2v3l4-1.5V17h2a2 2 0 012 2v3l4-1.5V19a2 2 0 00-2-2h-2a2 2 0 01-2-2V8h12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v8h12" /></svg>
-                Team Chat (bottom-right)
-              </button>
+          <div className="mt-6">
+            <div className="flex items-center justify-between"><p className="cm-eyebrow">Recent saves</p><a href="/library" onClick={() => setIsOpen(false)} className="text-xs text-cyan-300 hover:text-white">View all</a></div>
+            <div className="mt-3 space-y-2">
+              {isLoading ? <div className="h-16 animate-pulse rounded-2xl bg-white/5" /> : bookmarks.length === 0 ? <p className="rounded-2xl border border-dashed border-white/10 px-4 py-5 text-sm leading-6 text-slate-500">Your saved roles and research links will appear here.</p> : bookmarks.map(bookmark => <a key={bookmark.id} href={bookmark.url} target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-white/10 bg-white/[.04] px-4 py-3 hover:bg-white/[.09]"><p className="truncate text-sm font-medium text-white">{bookmark.title}</p><p className="mt-1 truncate text-xs text-slate-500">{bookmark.url.replace(/^https?:\/\//, "")}</p></a>)}
             </div>
-            <h4 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Recent Bookmarks</h4>
-            {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map(i => <div key={i} className="animate-pulse bg-white/5 rounded-lg h-16" />)}
-              </div>
-            ) : bookmarks.length === 0 ? (
-              <div className="text-center py-8">
-                <svg className="w-12 h-12 text-slate-700 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-                <p className="text-slate-500 text-sm">No bookmarks yet</p>
-                <p className="text-slate-600 text-xs mt-1">Save your first career resource above</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {bookmarks.map(bm => (
-                  <a key={bm.id} href={bm.url} target="_blank" rel="noopener noreferrer"
-                    className="block p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg transition-colors group">
-                    <p className="text-sm text-white font-medium truncate">{bm.title}</p>
-                    <p className="text-xs text-slate-500 truncate mt-0.5">{bm.url.replace(/^https?:\/\//, "")}</p>
-                    <p className="text-xs text-slate-600 mt-1">{new Date(bm.createdAt).toLocaleDateString()}</p>
-                  </a>
-                ))}
-              </div>
-            )}
           </div>
         </div>
-      </div>
+      </aside>
     </>
   );
 }
