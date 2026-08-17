@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const tenant = await prisma.tenant.upsert({
       where: { slug: 'default' },
       update: {},
-      create: { name: 'Default', slug: 'default', domain: 'localhost:3000' },
+      create: { name: 'Default', slug:'default' },
     });
 
     // 2. Check if user already exists
