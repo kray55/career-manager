@@ -5,7 +5,8 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import ResumeBuilder from "@/components/ResumeBuilder";
-import { updateResume, exportResumeToPDF, getResumeById } from "@/actions/resumes";
+// Use client helpers to avoid bundling server-only prisma
+import { createResumeClient, updateResumeClient, exportResumeToPDFClient } from "@/actions/resumes.client";
 
 interface Props {
   user: { name: string; email: string; role: string };
@@ -24,11 +25,10 @@ export default function ResumeEditorClient({ user, resume: initialResume }: Prop
   const handleSave = useCallback(async (data: any) => {
     const content = JSON.stringify(data);
     if (resume?.id) {
-      const updated = await updateResume({ id: resume.id, content });
-      setResume((prev) => prev ? { ...prev, content, version: updated.version } : prev);
+      const updated = await updateResumeClient({ id: resume.id, content });
+      setResume((prev) => prev ? { ...prev, content, version: updated.version ?? prev.version } : prev);
     } else {
-      const { createResume } = await import("@/actions/resumes");
-      const created = await createResume({ title: "Untitled Resume", content });
+      const created = await createResumeClient({ title: "Untitled Resume", content });
       setResume({ id: created.id, title: created.title, content, version: created.version });
       router.replace(`/resumes?id=${created.id}`, undefined, { shallow: true });
     }
@@ -41,14 +41,13 @@ export default function ResumeEditorClient({ user, resume: initialResume }: Prop
     }
     setExporting(true);
     try {
-      const result = await exportResumeToPDF(resume.id);
+      const result = await exportResumeToPDFClient(resume.id);
       // Open in new tab for print-to-PDF
       const blob = new Blob([result.html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const w = window.open(url, "_blank");
       if (w) {
         w.document.title = result.title;
-        // Trigger print dialog for PDF save
         w.onload = () => { w.print(); };
       }
       URL.revokeObjectURL(url);
