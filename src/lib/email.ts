@@ -19,7 +19,7 @@ export function getTransporter(): nodemailer.Transporter {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
   const fromName = process.env.SMTP_FROM_NAME || "Career Manager";
-  const fromEmail = process.env.SMTP_FROM_EMAIL || "noreply@careermanager.app";
+  const fromEmail = process.env.SMTP_FROM_EMAIL || user;
 
   if (!host || !user || !pass) {
     throw new Error(
@@ -51,11 +51,13 @@ export interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
+  text?: string;
   attachments?: Array<{
     filename: string;
     content?: string | Buffer;
     path?: string;
     contentType?: string;
+    encoding?: "base64";
   }>;
 }
 
@@ -69,14 +71,16 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   try {
     const transport = getTransporter();
     const fromName = process.env.SMTP_FROM_NAME || "Career Manager";
-    const fromEmail = process.env.SMTP_FROM_EMAIL || "noreply@careermanager.app";
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || "noreply@careermanager.app";
 
     const info = await transport.sendMail({
       from: `"${fromName}" <${fromEmail}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,
+      text: options.text || options.html.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<[^>]+>/g, ""),
       attachments: options.attachments,
+      headers: { "X-Mailer": "Career Manager" },
     });
 
     return {

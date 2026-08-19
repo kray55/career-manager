@@ -11,10 +11,21 @@ interface Props {
   contactEmail: string | null;
 }
 
+interface EmailAttachment {
+  filename: string;
+  content: string;
+  contentType: string;
+  encoding: "base64";
+  size: number;
+}
+
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+
 export default function ContactDetailClient({ user, contactId, contactEmail }: Props) {
   const [activeTab, setActiveTab] = useState<"overview" | "communication">("overview");
   const [showSendEmail, setShowSendEmail] = useState(false);
   const [emailForm, setEmailForm] = useState({ to: contactEmail || "", subject: "", body: "" });
+  const [attachments, setAttachments] = useState<EmailAttachment[]>([]);
   const [sending, setSending] = useState(false);
 
   const handleSendEmail = useCallback(async () => {
@@ -31,6 +42,7 @@ export default function ContactDetailClient({ user, contactId, contactEmail }: P
           to: emailForm.to,
           subject: emailForm.subject,
           html: emailForm.body.replace(/\n/g, "<br/>"),
+          attachments: attachments.map(({ filename, content, contentType, encoding }) => ({ filename, content, contentType, encoding })),
         }),
       });
       const data = await res.json();
@@ -38,6 +50,7 @@ export default function ContactDetailClient({ user, contactId, contactEmail }: P
         toast.success("Email sent successfully");
         setShowSendEmail(false);
         setEmailForm({ to: contactEmail || "", subject: "", body: "" });
+        setAttachments([]);
       } else {
         toast.error(data.error || "Failed to send email");
       }
@@ -46,7 +59,40 @@ export default function ContactDetailClient({ user, contactId, contactEmail }: P
     } finally {
       setSending(false);
     }
-  }, [emailForm, contactEmail]);
+  }, [emailForm, contactEmail, attachments]);
+
+  const handleAttachmentChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+    const selectedBytes = files.reduce((total, file) => total + file.size, 0);
+    const currentBytes = attachments.reduce((total, file) => total + file.size, 0);
+    if (selectedBytes + currentBytes > MAX_ATTACHMENT_BYTES) {
+      toast.error("Attachments must total 10 MB or less");
+      event.target.value = "";
+      return;
+    }
+    if (attachments.length + files.length > 5) {
+      toast.error("You can attach up to 5 files");
+      event.target.value = "";
+      return;
+    }
+    Promise.all(files.map((file) => new Promise<EmailAttachment>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        resolve({
+          filename: file.name,
+          content: result.split(",", 2)[1] || "",
+          contentType: file.type || "application/octet-stream",
+          encoding: "base64",
+          size: file.size,
+        });
+      };
+      reader.onerror = () => reject(new Error("Could not read attachment"));
+      reader.readAsDataURL(file);
+    }))).then((newFiles) => setAttachments((current) => [...current, ...newFiles])).catch(() => toast.error("Could not read attachment"));
+    event.target.value = "";
+  }, [attachments]);
 
   const tabs = [
     { key: "overview" as const, label: "Overview" },
@@ -170,6 +216,26 @@ export default function ContactDetailClient({ user, contactId, contactEmail }: P
                         className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500/50"
                         placeholder="Write your message..."
                       />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Attachments</label>
+                      <input
+                        type="file"
+                        multiple
+                        onChange={handleAttachmentChange}
+                        className="block w-full text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-500/20 file:px-3 file:py-2 file:text-primary-200 hover:file:bg-primary-500/30"
+                      />
+                      <p className="mt-1 text-xs text-slate-500">Up to 5 files, 10 MB total.</p>
+                      {attachments.length > 0 && (
+                        <ul className="mt-2 space-y-1 text-xs text-slate-300">
+                          {attachments.map((file) => (
+                            <li key={`${file.filename}-${file.size}`} className="flex items-center justify-between rounded-lg bg-slate-900/40 px-2 py-1">
+                              <span className="truncate">{file.filename}</span>
+                              <button type="button" onClick={() => setAttachments((current) => current.filter((item) => item !== file))} className="ml-2 text-slate-500 hover:text-white">Remove</button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
                       <button

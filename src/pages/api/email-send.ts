@@ -5,6 +5,12 @@ import { authOptions } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
 import prisma from "@/lib/prisma";
 
+export const config = {
+  api: {
+    bodyParser: { sizeLimit: "12mb" },
+  },
+};
+
 // ──────────────────────────────────────────────
 // Validation Schema
 // ──────────────────────────────────────────────
@@ -20,9 +26,20 @@ const sendEmailSchema = z.object({
         content: z.string().optional(),
         path: z.string().optional(),
         contentType: z.string().optional(),
+        encoding: z.literal("base64").optional(),
       })
     )
+    .max(5, "You can attach up to 5 files")
     .optional(),
+}).superRefine((value, ctx) => {
+  const attachments = value.attachments || [];
+  const totalBytes = attachments.reduce((total, attachment) => {
+    if (!attachment.content || attachment.encoding !== "base64") return total;
+    return total + Math.floor((attachment.content.length * 3) / 4);
+  }, 0);
+  if (totalBytes > 10 * 1024 * 1024) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["attachments"], message: "Attachments must total 10 MB or less" });
+  }
 });
 
 // ──────────────────────────────────────────────
@@ -52,6 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       to: parsed.to,
       subject: parsed.subject,
       html: parsed.html,
+      text: parsed.html.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<[^>]+>/g, ""),
       attachments: parsed.attachments,
     });
 
