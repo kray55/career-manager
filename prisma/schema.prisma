@@ -53,6 +53,9 @@ model Tenant {
   affiliateEarnings AffiliateEarning[]
   reportLogs        ReportLog[]
   imageAssets       ImageAsset[]
+  chatRooms         ChatRoom[]
+  chatMessages      ChatMessage[]
+  roomInvites       RoomInvite[]
 }
 
 model User {
@@ -70,18 +73,22 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  accounts       Account[]
-  sessions       Session[]
-  bookmarks      Bookmark[]
-  notes          Note[]
-  documents      Document[]
-  skills         Skill[]
-  checkins       Checkin[]
-  resumes        Resume[]
-  emailLogs      EmailLog[]
-  affiliateLinks AffiliateLink[]
-  imageAssets    ImageAsset[]
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  accounts        Account[]
+  sessions        Session[]
+  bookmarks       Bookmark[]
+  notes           Note[]
+  documents       Document[]
+  skills          Skill[]
+  checkins        Checkin[]
+  resumes         Resume[]
+  emailLogs       EmailLog[]
+  affiliateLinks  AffiliateLink[]
+  imageAssets     ImageAsset[]
+  ownedChatRooms  ChatRoom[]       @relation("RoomOwner")
+  roomMemberships ChatRoomMember[]
+  chatMessages    ChatMessage[]
+  createdInvites  RoomInvite[]     @relation("InviteCreator")
 
   @@index([tenantId])
   @@index([email])
@@ -265,6 +272,82 @@ model Contact {
   @@index([tenantId])
   @@index([tenantId, email])
   @@index([status])
+}
+
+enum ChatRoomType {
+  PRIVATE
+  INVITE_ONLY
+}
+
+model ChatRoom {
+  id          String       @id @default(cuid())
+  tenantId    String
+  ownerId     String
+  name        String
+  description String       @default("")
+  type        ChatRoomType @default(PRIVATE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  tenant   Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner    User             @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members  ChatRoomMember[]
+  messages ChatMessage[]
+  invites  RoomInvite[]
+
+  @@index([tenantId])
+  @@index([ownerId])
+}
+
+model ChatRoomMember {
+  id       String   @id @default(cuid())
+  roomId   String
+  userId   String
+  role     String   @default("MEMBER")
+  joinedAt DateTime @default(now())
+
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([userId])
+}
+
+model RoomInvite {
+  id          String    @id @default(cuid())
+  tenantId    String
+  roomId      String
+  createdById String
+  email       String
+  token       String    @unique
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdBy User     @relation("InviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([email])
+  @@index([expiresAt])
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  tenantId   String
+  roomId     String?
+  senderId   String
+  senderName String
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  tenant Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  room   ChatRoom? @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@index([roomId, createdAt])
 }
 
 // ──────────────────────────────────────────────

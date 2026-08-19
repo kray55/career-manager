@@ -40,18 +40,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseW
 
     httpServer.io = io;
 
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
       const tenantId = socket.handshake.query.tenantId as string;
       const userId = socket.handshake.query.userId as string;
       const userName = socket.handshake.query.userName as string || "Anonymous";
+      const roomId = socket.handshake.query.roomId as string | undefined;
 
       if (!tenantId) {
         socket.disconnect();
         return;
       }
 
-      // Join tenant room
-      const room = `tenant:${tenantId}`;
+      // Join a verified room when supplied; retain tenant-wide chat as a fallback.
+      let room = `tenant:${tenantId}`;
+      if (roomId) {
+        const membership = await prisma.chatRoomMember.findFirst({ where: { roomId, userId }, include: { room: true } });
+        if (!membership || membership.room.tenantId !== tenantId) {
+          socket.disconnect();
+          return;
+        }
+        room = `chat:${roomId}`;
+      }
       socket.join(room);
       console.log(`[Socket] User ${userName} (${userId}) joined room ${room}`);
 
@@ -59,7 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseW
       socket.on("chat:history", async () => {
         try {
           const messages = await prisma.chatMessage.findMany({
-            where: { tenantId },
+            where: roomId ? { tenantId, roomId } : { tenantId },
             orderBy: { createdAt: "desc" },
             take: 50,
             select: {
@@ -87,6 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseW
               senderId: userId,
               senderName: userName,
               content: data.content.trim(),
+              roomId: roomId || null,
             },
           });
 
@@ -96,6 +106,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseW
             senderName: message.senderName,
             content: message.content,
             createdAt: message.createdAt.toISOString(),
+            roomId: message.roomId,
           };
 
           // Broadcast to everyone in tenant room including sender

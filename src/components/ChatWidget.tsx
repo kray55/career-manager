@@ -4,6 +4,14 @@ import { useSession } from "next-auth/react";
 import { io, Socket } from "socket.io-client";
 import toast from "react-hot-toast";
 
+interface ChatRoom {
+  id: string;
+  name: string;
+  type: "PRIVATE" | "INVITE_ONLY";
+  description?: string;
+  _count?: { members: number; messages: number };
+}
+
 interface ChatMessage {
   id: string;
   senderId: string;
@@ -26,6 +34,11 @@ export default function ChatWidget() {
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubject, setNotifySubject] = useState("");
   const [showNotify, setShowNotify] = useState(false);
+  const [rooms, setRooms] = useState<ChatRoom[]>([]);
+  const [activeRoomId, setActiveRoomId] = useState<string | undefined>();
+  const [showRoomForm, setShowRoomForm] = useState(false);
+  const [roomName, setRoomName] = useState("");
+  const [roomType, setRoomType] = useState<"PRIVATE" | "INVITE_ONLY">("PRIVATE");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,6 +48,15 @@ export default function ChatWidget() {
   const userName = user?.name || "User";
 
   useEffect(() => {
+    if (!tenantId) return;
+    fetch("/api/chat/rooms").then((r) => r.ok ? r.json() : { rooms: [] }).then((data) => {
+      const nextRooms = data.rooms || [];
+      setRooms(nextRooms);
+      if (!activeRoomId && nextRooms[0]?.id) setActiveRoomId(nextRooms[0].id);
+    }).catch(() => undefined);
+  }, [tenantId, activeRoomId]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -42,7 +64,7 @@ export default function ChatWidget() {
     if (!tenantId || !userId) return;
     const s = io({
       path: "/api/socket",
-      query: { tenantId, userId, userName },
+      query: { tenantId, userId, userName, roomId: activeRoomId || "" },
       transports: ["websocket", "polling"],
     });
 
@@ -58,7 +80,7 @@ export default function ChatWidget() {
 
     setSocket(s);
     return () => { s.disconnect(); };
-  }, [tenantId, userId, userName]);
+  }, [tenantId, userId, userName, activeRoomId]);
 
   const sendMessage = useCallback(() => {
     if (!input.trim() || !socket) return;
@@ -69,6 +91,18 @@ export default function ChatWidget() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  };
+
+  const createRoom = async () => {
+    if (!roomName.trim()) return;
+    const response = await fetch("/api/chat/rooms", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: roomName, type: roomType }) });
+    const data = await response.json();
+    if (!response.ok) return toast.error(data.error || "Could not create room");
+    setRooms((prev) => [data.room, ...prev]);
+    setActiveRoomId(data.room.id);
+    setRoomName("");
+    setShowRoomForm(false);
+    toast.success("Room created");
   };
 
   const handleNotify = () => {
@@ -102,13 +136,28 @@ export default function ChatWidget() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-slate-800/50">
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-400" : "bg-red-400"}`} />
-              <h3 className="text-white font-semibold text-sm">Team Chat</h3>
+              <div>
+                <h3 className="text-white font-semibold text-sm">{rooms.find((room) => room.id === activeRoomId)?.name || "Team Chat"}</h3>
+                <select value={activeRoomId || ""} onChange={(event) => setActiveRoomId(event.target.value || undefined)} className="mt-1 max-w-[180px] bg-slate-800 text-[10px] text-slate-400 border border-white/10 rounded px-1 py-0.5">
+                  <option value="">Tenant chat</option>
+                  {rooms.map((room) => <option key={room.id} value={room.id}>{room.name} · {room.type === "INVITE_ONLY" ? "Invite-only" : "Private"}</option>)}
+                </select>
+              </div>
+              <button onClick={() => setShowRoomForm(!showRoomForm)} className="px-2 py-1 text-[10px] text-primary-300 border border-primary-500/30 rounded" title="Create room">+ Room</button>
               <span className="text-xs text-slate-500">({messages.length})</span>
             </div>
             <button onClick={() => setShowNotify(!showNotify)} className="p-1.5 text-slate-500 hover:text-white rounded-lg hover:bg-slate-700 text-xs" title="Notify">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
             </button>
           </div>
+
+          {showRoomForm && (
+            <div className="px-4 py-3 border-b border-white/10 bg-slate-800/30 space-y-2">
+              <input value={roomName} onChange={(event) => setRoomName(event.target.value)} placeholder="Room name" className="w-full px-3 py-1.5 bg-slate-800 border border-white/10 rounded-lg text-white text-sm" />
+              <select value={roomType} onChange={(event) => setRoomType(event.target.value as "PRIVATE" | "INVITE_ONLY")} className="w-full px-3 py-1.5 bg-slate-800 border border-white/10 rounded-lg text-white text-sm"><option value="PRIVATE">Private</option><option value="INVITE_ONLY">Invite-only</option></select>
+              <button onClick={createRoom} disabled={!roomName.trim()} className="w-full py-1.5 bg-primary-500/20 text-primary-300 text-sm rounded-lg disabled:opacity-50">Create room</button>
+            </div>
+          )}
 
           {showNotify && (
             <div className="px-4 py-3 border-b border-white/10 bg-slate-800/30 space-y-2">

@@ -9,6 +9,7 @@ const globalForPrisma = globalThis as unknown as { prisma: ReturnType<typeof cre
 const TENANT_SCOPED_MODELS = [
   "User", "Account", "Session", "Bookmark", "Note", "Document",
   "Resume", "ResumeHistory", "EmailLog", "ChatMessage", "Contact",
+  "ChatRoom", "ChatRoomMember", "RoomInvite",
 ];
 
 function createPrismaClient() {
