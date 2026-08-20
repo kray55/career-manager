@@ -34,11 +34,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const safe = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character] || character));
     const finalSubject = subject || `Invitation to join ${room.name}`;
     const bespokeMessage = message || `You have been invited to join ${room.name} in Career Manager.`;
+    const safeRoomName = safe(room.name);
+    const safeMessage = safe(bespokeMessage).replace(/\r?\n/g, "<br />");
     const result = await sendEmail({
       to: email,
       subject: finalSubject,
-      html: `<p>${safe(bespokeMessage).replace(/\\n/g, "<br />")}</p><p><a href="${safe(link)}">Join the room</a></p><p>This invitation expires in 7 days.</p>`,
-      text: `${bespokeMessage}\n\nJoin the room: ${link}\n\nThis invitation expires in 7 days.`,
+      html: `<!doctype html><html><body style="margin:0;background:#eef4fb;font-family:Arial,sans-serif;color:#172033"><div style="max-width:620px;margin:32px auto;padding:0 16px"><div style="background:#0b1830;border-radius:20px 20px 0 0;padding:28px 32px;color:#fff"><div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#8ee7ff">Career Manager</div><h1 style="margin:12px 0 0;font-size:26px;line-height:1.2">You’re invited to join ${safeRoomName}</h1></div><div style="background:#fff;padding:32px;border:1px solid #dbe5f0;border-top:0"><div style="font-size:15px;line-height:1.7;color:#344054">${safeMessage}</div><div style="margin:26px 0;text-align:center"><a href="${safe(link)}" style="display:inline-block;background:#087ea4;color:#fff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:700">Join the room</a></div><div style="background:#f5f8fc;border-radius:12px;padding:16px;font-size:13px;line-height:1.6;color:#667085"><strong>Invitation details</strong><br>Room: ${safeRoomName}<br>Access: Invite-only<br>Expires: ${expiresAt.toLocaleString()}</div></div><div style="padding:18px 24px;text-align:center;color:#667085;font-size:11px">This secure invitation expires in 7 days. If you were not expecting it, you can safely ignore this email.</div></div></body></html>`,
+      text: `${bespokeMessage}\n\nJoin the room: ${link}\n\nRoom: ${room.name}\nThis invitation expires on ${expiresAt.toLocaleString()}.`,
     });
 
     if (!result.success) return res.status(502).json({ error: result.error || "Invitation email failed", inviteId: invite.id });
