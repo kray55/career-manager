@@ -6,6 +6,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 // Use client helper to avoid bundling server-only prisma
 import { createDocumentClient } from "@/actions/documents.client";
+import AIGenerator from "@/components/AIGenerator";
 
 interface Props {
   user: { name: string; email: string; role: string; tenantSlug: string };
@@ -151,6 +152,10 @@ export default function TemplatesPageClient({ user }: Props) {
           <h1 className="text-3xl font-bold text-white">Document Templates</h1>
           <p className="text-slate-400 mt-1">Choose a template to quickly create resumes, cover letters, and more.</p>
         </div>
+
+        <section className="mb-10 max-w-3xl">
+          <AIGenerator onGenerated={(documentId) => { window.setTimeout(() => { window.location.href = `/documents?id=${documentId}`; }, 900); }} />
+        </section>
 
         {/* Template Cards */}
         <div className="grid grid-cols-12 gap-6">

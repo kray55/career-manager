@@ -91,29 +91,32 @@ export default function AIGenerator({ onGenerated }: AIGeneratorProps) {
     setGeneratedContent(null);
 
     try {
-      // In production, this would call an AI API
-      // For now, we simulate with template-based generation
-      const prompt = getPromptText();
-      
-      // Simulate AI response with template content
-      const templateContent = generateFromTemplate(type, formData);
-      
-      // Create a document with the generated content
-      const r = await createDocumentClient({
+      const response = await fetch("/api/ai-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, fields: formData }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.content) {
+        throw new Error(result.error || "Generation failed");
+      }
+
+      const generated = result.content as string;
+      const documentResult = await createDocumentClient({
         title: `${config.label} - AI Generated`,
-        content: templateContent,
+        content: generated,
         type: type === "resume" ? "resume" : type === "coverLetter" ? "coverLetter" : "document",
         status: "draft",
         tags: `ai-generated, ${type}`,
       });
 
-      if (r.success) {
-        setGeneratedContent(templateContent);
-        toast.success(`${config.label} generated!`);
-        onGenerated?.(r.data.id);
-      } else {
-        toast.error(r.error || "Generation failed");
+      if (!documentResult.success) {
+        throw new Error(documentResult.error || "Generated content could not be saved");
       }
+
+      setGeneratedContent(generated);
+      toast.success(`${config.label} generated and saved to Documents.`);
+      onGenerated?.(documentResult.data.id);
     } catch (err: any) {
       toast.error("Generation failed: " + err.message);
     } finally {
