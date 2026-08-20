@@ -19,6 +19,13 @@ interface ChatMessage {
   createdAt: string;
 }
 
+const USER_AVATARS = ["👤", "💼", "🎓", "🧭", "🚀", "🧠", "🛠️", "🌟"];
+const GUEST_AVATARS = ["👋", "🤝", "🗣️", "💬", "🌐", "🙋", "🎙️", "🧑‍💻"];
+
+function avatarIndex(value: string, size: number) {
+  return Array.from(value).reduce((total, character) => total + character.charCodeAt(0), 0) % size;
+}
+
 /**
  * T9-B: ChatWidget - Floating chat button (fixed bottom-4 right-4)
  * Expands into a chat modal. Connects to Socket.io via /api/socket.
@@ -38,6 +45,8 @@ export default function ChatWidget() {
   const [inviteSubject, setInviteSubject] = useState("");
   const [inviteMessage, setInviteMessage] = useState("");
   const [inviteSending, setInviteSending] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [avatarEmoji, setAvatarEmoji] = useState(USER_AVATARS[0]);
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [activeRoomId, setActiveRoomId] = useState<string | undefined>();
   const [showRoomForm, setShowRoomForm] = useState(false);
@@ -50,6 +59,24 @@ export default function ChatWidget() {
   const tenantId = user?.tenantId;
   const userId = user?.id;
   const userName = user?.name || "User";
+
+  useEffect(() => {
+    if (!userId || typeof window === "undefined") return;
+    const savedAvatar = window.localStorage.getItem(`career-manager-avatar:${userId}`);
+    if (savedAvatar && USER_AVATARS.includes(savedAvatar)) setAvatarEmoji(savedAvatar);
+  }, [userId]);
+
+  const chooseAvatar = (emoji: string) => {
+    setAvatarEmoji(emoji);
+    if (userId && typeof window !== "undefined") window.localStorage.setItem(`career-manager-avatar:${userId}`, emoji);
+    setShowAvatarPicker(false);
+  };
+
+  const getMessageAvatar = (message: ChatMessage) => {
+    if (message.senderId === userId) return avatarEmoji;
+    const isGuest = message.senderName.toLowerCase().includes("guest") || message.senderId.toLowerCase().startsWith("guest");
+    return (isGuest ? GUEST_AVATARS : USER_AVATARS)[avatarIndex(message.senderId || message.senderName, isGuest ? GUEST_AVATARS.length : USER_AVATARS.length)];
+  };
 
   useEffect(() => {
     if (!tenantId) return;
@@ -217,7 +244,18 @@ export default function ChatWidget() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
             </button>
             <button onClick={() => setShowInvite(!showInvite)} disabled={!activeRoomId} className="px-2 py-1 text-[10px] text-primary-300 border border-primary-500/30 rounded disabled:opacity-40" title="Invite guest">Invite</button>
+            <button onClick={() => setShowAvatarPicker(!showAvatarPicker)} className="w-7 h-7 rounded-full bg-primary-500/20 border border-primary-400/30 text-base" title="Choose your avatar">{avatarEmoji}</button>
           </div>
+
+          {showAvatarPicker && (
+            <div className="px-4 py-3 border-b border-white/10 bg-slate-800/40">
+              <p className="text-[11px] font-semibold text-slate-300 mb-2">Your user avatar</p>
+              <div className="grid grid-cols-8 gap-1">
+                {USER_AVATARS.map((emoji) => <button key={emoji} onClick={() => chooseAvatar(emoji)} className={`h-8 rounded-lg text-lg ${emoji === avatarEmoji ? "bg-primary-500/30 ring-1 ring-primary-300" : "bg-slate-800 hover:bg-slate-700"}`} title={`Use ${emoji} avatar`}>{emoji}</button>)}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-2">Guests are shown with a separate guest avatar style.</p>
+            </div>
+          )}
 
           {showRoomForm && (
             <div className="px-4 py-3 border-b border-white/10 bg-slate-800/30 space-y-2">
@@ -264,8 +302,10 @@ export default function ChatWidget() {
                 <p className="text-slate-600 text-xs mt-1">Start the conversation!</p>
               </div>
             )}
-            {messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.senderId === userId ? "justify-end" : "justify-start"}`}>
+            {messages.map((msg) => {
+              const isGuest = msg.senderName.toLowerCase().includes("guest") || msg.senderId.toLowerCase().startsWith("guest");
+              return <div key={msg.id} className={`flex items-end gap-2 ${msg.senderId === userId ? "justify-end" : "justify-start"}`}>
+                {msg.senderId !== userId && <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-lg ${isGuest ? "bg-amber-500/20 border border-amber-300/30" : "bg-slate-700 border border-white/10"}`} title={isGuest ? "Guest participant" : "Registered user"}>{getMessageAvatar(msg)}</div>}
                 <div className={`max-w-[80%] rounded-xl px-3 py-2 ${
                   msg.senderId === userId
                     ? "bg-primary-600/20 text-primary-200 border border-primary-500/20"
@@ -273,12 +313,14 @@ export default function ChatWidget() {
                 }`}>
                   <div className="flex items-center gap-2 mb-.5">
                     <span className="text-xs font-medium opacity-70">{msg.senderId === userId ? "You" : msg.senderName}</span>
+                    {isGuest && <span className="text-[9px] text-amber-300/80 border border-amber-300/20 rounded px-1">Guest</span>}
                     <span className="text-[10px] text-slate-500">{new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                   </div>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                 </div>
-              </div>
-            ))}
+                {msg.senderId === userId && <div className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-lg bg-primary-500/20 border border-primary-400/30" title="Your user avatar">{avatarEmoji}</div>}
+              </div>;
+            })}
             <div ref={messagesEndRef} />
           </div>
 
