@@ -34,6 +34,8 @@ async function getSession(req: NextApiRequest, res: NextApiResponse) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession(req, res);
   if (!session) return;
+  const tenantId = (session.user as any).tenantId as string | undefined;
+  if (!tenantId) return res.status(500).json({ error: "Session tenant is unavailable" });
 
   // ── GET /api/notes ──────────────────────────
   if (req.method === "GET") {
@@ -43,14 +45,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Single note fetch
       if (id && typeof id === "string") {
         const note = await prisma.note.findUnique({ where: { id } });
-        if (!note || note.userId !== session.user.id) {
+        if (!note || note.tenantId !== tenantId || note.userId !== session.user.id) {
           return res.status(404).json({ error: "Note not found" });
         }
         return res.status(200).json({ note });
       }
 
       // List notes
-      const where: any = { userId: session.user.id };
+      const where: any = { tenantId, userId: session.user.id };
       
       // Archived filter
       if (archived === "true") where.archived = true;
@@ -95,6 +97,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       const note = await prisma.note.create({
         data: {
+          tenantId,
           title: parsed.data.title,
           content: parsed.data.content,
           tags: parsed.data.tags,
@@ -119,7 +122,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const existing = await prisma.note.findUnique({ where: { id: parsed.data.id } });
-      if (!existing || existing.userId !== session.user.id) {
+      if (!existing || existing.tenantId !== tenantId || existing.userId !== session.user.id) {
         return res.status(404).json({ error: "Note not found" });
       }
 
@@ -150,7 +153,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!id) return res.status(400).json({ error: "Note ID required" });
 
       const existing = await prisma.note.findUnique({ where: { id } });
-      if (!existing || existing.userId !== session.user.id) {
+      if (!existing || existing.tenantId !== tenantId || existing.userId !== session.user.id) {
         return res.status(404).json({ error: "Note not found" });
       }
 
