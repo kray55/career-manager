@@ -9,7 +9,7 @@ export async function getServerSideProps(context: any) {
 
   const user = session.user as any;
   const notes = await prisma.note.findMany({
-    where: { userId: user.id, archived: false },
+    where: { userId: user.id, tenantId: user.tenantId, archived: false },
     orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
     take: 100,
   });

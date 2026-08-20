@@ -21,10 +21,11 @@ export interface NoteItem {
 interface Props {
   notes: NoteItem[];
   onUpdate: (notes: NoteItem[]) => void;
+  onEdit?: (note: NoteItem) => void;
   viewMode?: "list" | "grid";
 }
 
-export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props) {
+export default function NotesList({ notes, onUpdate, onEdit, viewMode = "list" }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "pinned" | "archived">("all");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -191,7 +192,10 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+              <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
+                {onEdit && <button onClick={() => onEdit(note)} className="p-1.5 rounded-lg text-slate-600 hover:text-primary-400 hover:bg-primary-500/10" title="Edit note">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                </button>}
                 <button onClick={() => togglePin(note)}
                   className={`p-1.5 rounded-lg transition-colors ${note.pinned ? "text-yellow-400 hover:text-yellow-300" : "text-slate-600 hover:text-yellow-400 hover:bg-yellow-500/10"}`}
                   title={note.pinned ? "Unpin" : "Pin"}>
@@ -229,7 +233,10 @@ export default function NotesList({ notes, onUpdate, viewMode = "list" }: Props)
                   {note.pinned && <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>}
                   <Link href={`/notes?id=${note.id}`} className="text-sm font-medium text-white hover:text-primary-400 transition-colors truncate block">{note.title || "Untitled Note"}</Link>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
+                  {onEdit && <button onClick={() => onEdit(note)} className="p-1 rounded-lg text-slate-600 hover:text-primary-400" title="Edit note">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  </button>}
                   <button onClick={() => togglePin(note)} className={`p-1 rounded-lg ${note.pinned ? "text-yellow-400" : "text-slate-600 hover:text-yellow-400"}`}>
                     <svg className="w-3.5 h-3.5" fill={note.pinned ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" /></svg>
                   </button>

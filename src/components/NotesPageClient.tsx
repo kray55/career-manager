@@ -275,7 +275,7 @@ export default function NotesPageClient({ user, initialNotes }: Props) {
 
         {/* Notes List */}
         {!selectedNote && !showNewNote && !editingNote && (
-          <NotesList notes={notes} onUpdate={setNotes} viewMode="list" />
+          <NotesList notes={notes} onUpdate={setNotes} onEdit={(note) => setEditingNote({ ...note })} viewMode="list" />
         )}
       </main>
     </div>
