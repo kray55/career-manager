@@ -55,6 +55,16 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      const appUrl = process.env.PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL || "https://career-manager-iota.vercel.app";
+      if (url.startsWith("/")) return `${appUrl}${url}`;
+      try {
+        const requested = new URL(url);
+        const allowed = new URL(appUrl);
+        if (requested.origin === allowed.origin) return url;
+      } catch { /* fall through to the stable public app URL */ }
+      return `${appUrl}/login`;
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
