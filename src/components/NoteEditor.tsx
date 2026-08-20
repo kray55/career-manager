@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -23,6 +23,8 @@ interface NoteEditorProps {
   minHeight?: string;
   placeholder?: string;
   onEditorReady?: (editor: any) => void;
+  onInsertImage?: () => void;
+  imageToInsert?: { dataUrl: string; name: string } | null;
 }
 
 export default function NoteEditor({
@@ -32,8 +34,12 @@ export default function NoteEditor({
   minHeight = "300px",
   placeholder = "Start writing your note...",
   onEditorReady,
+  onInsertImage,
+  imageToInsert,
 }: NoteEditorProps) {
   const [isReady, setIsReady] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const lastInsertedImage = useRef<string | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -76,6 +82,12 @@ export default function NoteEditor({
   useEffect(() => {
     if (editor && !editor.isDestroyed) editor.setEditable(editable);
   }, [editor, editable]);
+
+  useEffect(() => {
+    if (!editor || editor.isDestroyed || !imageToInsert?.dataUrl || imageToInsert.dataUrl === lastInsertedImage.current) return;
+    editor.chain().focus().setImage({ src: imageToInsert.dataUrl, alt: imageToInsert.name }).run();
+    lastInsertedImage.current = imageToInsert.dataUrl;
+  }, [editor, imageToInsert]);
 
   if (!editor || !isReady) return null;
 
@@ -120,6 +132,17 @@ export default function NoteEditor({
           {tb(() => { const url = window.prompt("Enter URL:", editor.getAttributes("link").href || ""); if (url) editor.chain().focus().setLink({ href: url }).run(); else if (url === "") editor.chain().focus().unsetLink().run(); }, editor.isActive("link"), "Link", <IC d="M3.9 12c-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 -5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 -3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71  3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76  5-2.24 5-5s-2.24-5-5-5z" />)}
           {editor.isActive("link") && tb(() => editor.chain().focus().unsetLink().run(), false, "Remove Link", <IC d="M17 7h-4v1.9h4c1.71  3.1 1.39 3.1 3.1  1.43-.98 2.63-2.31 2.98l1.46 1.46C20.88 15.61 22 13.95 22 12c-2.76-2.24-5-5-5zm-1 4h-2.19l2 2H16zM2 4.27l3.11 3.11C3.29 8.12 2 9.91 2 12c 2.76 2.24 5 5 5h4v-1.9H7c-1.71 -3.1-1.39-3.1-3.1 -1.59 1.21-2.9 2.76-3.07L8.73 11H8v2h2.73L13 15.27V17h1.73l4.01 4.01 1.41-1.41L3.41 2.86 2 4.27z" />)}
           {tb(() => editor.chain().focus().setHorizontalRule().run(), false, "HR", <IC d="M3 13h18v-2H3v2z" />)}
+          {onInsertImage && tb(() => onInsertImage(), false, "Insert image", <span className="text-sm">🖼️</span>)}
+          <div className="relative">
+            {tb(() => setShowEmojiPicker((open) => !open), false, "Insert emoji", <span className="text-sm">😊</span>)}
+            {showEmojiPicker && (
+              <div className="absolute bottom-full left-0 z-30 mb-2 grid w-44 grid-cols-6 gap-1 rounded-xl border border-white/10 bg-slate-900 p-2 shadow-2xl">
+                {["😀", "😊", "🙂", "😉", "🤝", "👍", "🎯", "💼", "📌", "⭐", "🚀", "✅", "💡", "📚", "📝", "❤️", "🔥", "🎓"].map((emoji) => (
+                  <button key={emoji} type="button" title={`Insert ${emoji}`} onClick={() => { editor.chain().focus().insertContent(emoji).run(); setShowEmojiPicker(false); }} className="rounded p-1 text-base hover:bg-white/10">{emoji}</button>
+                ))}
+              </div>
+            )}
+          </div>
           <D />
           {tb(() => editor.chain().focus().clearNodes().unsetAllMarks().run(), false, "Clear", <IC d="M6 6l12 12M6 18L18 6" />)}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -19,6 +19,25 @@ export default function NotesPageClient({ user, initialNotes }: Props) {
   const [showNewNote, setShowNewNote] = useState(false);
   const [editingNote, setEditingNote] = useState<NoteItem | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving">("idle");
+  const [pendingNoteImage, setPendingNoteImage] = useState<{ dataUrl: string; name: string } | null>(null);
+  const noteImageInput = useRef<HTMLInputElement>(null);
+
+  const handleInsertImage = useCallback(() => {
+    noteImageInput.current?.click();
+  }, []);
+
+  const handleNoteImage = useCallback((file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please choose an image file"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("Images must be smaller than 10MB"); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      setPendingNoteImage({ dataUrl, name: file.name });
+      toast.success("Image ready to insert into note");
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   // New note state
   const [newTitle, setNewTitle] = useState("");
@@ -180,6 +199,8 @@ export default function NotesPageClient({ user, initialNotes }: Props) {
           </div>
         )}
 
+        <input ref={noteImageInput} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={(event) => { handleNoteImage(event.target.files?.[0]); event.currentTarget.value = ""; }} />
+
         {/* New Note Form */}
         {showNewNote && (
           <div className="mb-8 bg-white/5 border border-white/10 rounded-xl p-6">
@@ -193,7 +214,7 @@ export default function NotesPageClient({ user, initialNotes }: Props) {
               </div>
               <div>
                 <label className="block text-xs text-slate-500 mb-1">Content</label>
-                <NoteEditor initialContent={newContent} onChange={setNewContent} minHeight="200px" />
+                <NoteEditor initialContent={newContent} onChange={setNewContent} onInsertImage={handleInsertImage} imageToInsert={pendingNoteImage} minHeight="200px" />
               </div>
               <div className="flex gap-4">
                 <div className="flex-1">
@@ -236,7 +257,7 @@ export default function NotesPageClient({ user, initialNotes }: Props) {
               </div>
               <div>
                 <label className="block text-xs text-slate-500 mb-1">Content</label>
-                <NoteEditor initialContent={editingNote.content} onChange={(html) => setEditingNote({ ...editingNote, content: html })} minHeight="300px" />
+                <NoteEditor initialContent={editingNote.content} onChange={(html) => setEditingNote({ ...editingNote, content: html })} onInsertImage={handleInsertImage} imageToInsert={pendingNoteImage} minHeight="300px" />
               </div>
               <div className="flex gap-2">
                 <button onClick={handleSaveEdit} disabled={saveStatus === "saving" || !editingNote.title.trim()}
