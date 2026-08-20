@@ -40,6 +40,7 @@ export default function NoteEditor({
   const [isReady, setIsReady] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const lastInsertedImage = useRef<string | null>(null);
+  const emojiRange = useRef<{ from: number; to: number } | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -134,11 +135,11 @@ export default function NoteEditor({
           {tb(() => editor.chain().focus().setHorizontalRule().run(), false, "HR", <IC d="M3 13h18v-2H3v2z" />)}
           {onInsertImage && tb(() => onInsertImage(), false, "Insert image", <span className="text-sm">🖼️</span>)}
           <div className="relative">
-            {tb(() => setShowEmojiPicker((open) => !open), false, "Insert emoji", <span className="text-sm">😊</span>)}
+            <button type="button" title="Insert emoji" onMouseDown={(event) => { event.preventDefault(); const { from, to } = editor.state.selection; emojiRange.current = { from, to }; }} onClick={() => setShowEmojiPicker((open) => !open)} className="p-1.5 rounded transition-colors text-slate-400 hover:text-white hover:bg-slate-700/50"><span className="text-sm">😊</span></button>
             {showEmojiPicker && (
               <div className="absolute bottom-full left-0 z-30 mb-2 grid w-44 grid-cols-6 gap-1 rounded-xl border border-white/10 bg-slate-900 p-2 shadow-2xl">
                 {["😀", "😊", "🙂", "😉", "🤝", "👍", "🎯", "💼", "📌", "⭐", "🚀", "✅", "💡", "📚", "📝", "❤️", "🔥", "🎓"].map((emoji) => (
-                  <button key={emoji} type="button" title={`Insert ${emoji}`} onMouseDown={(event) => event.preventDefault()} onClick={() => { editor.chain().focus().insertText(emoji).run(); setShowEmojiPicker(false); }} className="rounded p-1 text-base hover:bg-white/10">{emoji}</button>
+                  <button key={emoji} type="button" title={`Insert ${emoji}`} onMouseDown={(event) => event.preventDefault()} onClick={() => { const range = emojiRange.current || { from: editor.state.selection.from, to: editor.state.selection.to }; editor.commands.insertContentAt(range, emoji); editor.commands.focus(); setShowEmojiPicker(false); }} className="rounded p-1 text-base hover:bg-white/10">{emoji}</button>
                 ))}
               </div>
             )}
