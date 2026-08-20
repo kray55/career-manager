@@ -92,7 +92,7 @@ export default function NoteEditor({
   if (!editor || !isReady) return null;
 
   const tb = (onClick: any, active: any, title: string, children: any) => (
-    <button type="button" onClick={onClick} title={title}
+    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick} title={title}
       className={`p-1.5 rounded transition-colors ${active ? "bg-primary-600/30 text-primary-300" : "text-slate-400 hover:text-white hover:bg-slate-700/50"}`}>
       {children}
     </button>
@@ -138,7 +138,7 @@ export default function NoteEditor({
             {showEmojiPicker && (
               <div className="absolute bottom-full left-0 z-30 mb-2 grid w-44 grid-cols-6 gap-1 rounded-xl border border-white/10 bg-slate-900 p-2 shadow-2xl">
                 {["😀", "😊", "🙂", "😉", "🤝", "👍", "🎯", "💼", "📌", "⭐", "🚀", "✅", "💡", "📚", "📝", "❤️", "🔥", "🎓"].map((emoji) => (
-                  <button key={emoji} type="button" title={`Insert ${emoji}`} onClick={() => { editor.chain().focus().insertContent(emoji).run(); setShowEmojiPicker(false); }} className="rounded p-1 text-base hover:bg-white/10">{emoji}</button>
+                  <button key={emoji} type="button" title={`Insert ${emoji}`} onMouseDown={(event) => event.preventDefault()} onClick={() => { editor.chain().focus().insertText(emoji).run(); setShowEmojiPicker(false); }} className="rounded p-1 text-base hover:bg-white/10">{emoji}</button>
                 ))}
               </div>
             )}
