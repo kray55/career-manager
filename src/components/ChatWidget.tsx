@@ -31,6 +31,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionMode, setConnectionMode] = useState<"socket" | "polling" | "disconnected">("disconnected");
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubject, setNotifySubject] = useState("");
   const [showNotify, setShowNotify] = useState(false);
@@ -66,10 +67,13 @@ export default function ChatWidget() {
       path: "/api/socket",
       query: { tenantId, userId, userName, roomId: activeRoomId || "" },
       transports: ["websocket", "polling"],
+      timeout: 5000,
+      reconnectionAttempts: 2,
     });
 
-    s.on("connect", () => { setIsConnected(true); s.emit("chat:history"); });
-    s.on("disconnect", () => setIsConnected(false));
+    s.on("connect", () => { setIsConnected(true); setConnectionMode("socket"); s.emit("chat:history"); });
+    s.on("disconnect", () => { setIsConnected(false); setConnectionMode("disconnected"); });
+    s.on("connect_error", () => { setIsConnected(false); setConnectionMode("disconnected"); });
     s.on("chat:history", (data: ChatMessage[]) => setMessages(data || []));
     s.on("chat:message", (data: ChatMessage) => setMessages((prev) => [...prev, data]));
     s.on("chat:error", (data: any) => toast.error(data?.message || "Chat error"));
@@ -79,15 +83,63 @@ export default function ChatWidget() {
     });
 
     setSocket(s);
-    return () => { s.disconnect(); };
+    return () => { s.disconnect(); setSocket(null); };
   }, [tenantId, userId, userName, activeRoomId]);
 
-  const sendMessage = useCallback(() => {
-    if (!input.trim() || !socket) return;
-    socket.emit("chat:message", { content: input.trim() });
+  // Vercel API functions do not guarantee a persistent WebSocket process. Polling
+  // keeps rooms usable in Production while Socket.IO is unavailable.
+  useEffect(() => {
+    if (!tenantId || !userId) return;
+    let cancelled = false;
+    const loadMessages = async () => {
+      if (socket?.connected) return;
+      try {
+        const query = activeRoomId ? `?roomId=${encodeURIComponent(activeRoomId)}` : "";
+        const response = await fetch(`/api/chat/messages${query}`);
+        if (!response.ok) throw new Error("Chat request failed");
+        const data = await response.json();
+        if (!cancelled) {
+          setMessages(data.messages || []);
+          setIsConnected(true);
+          setConnectionMode("polling");
+        }
+      } catch {
+        if (!cancelled) {
+          setIsConnected(false);
+          setConnectionMode("disconnected");
+        }
+      }
+    };
+    loadMessages();
+    const timer = window.setInterval(loadMessages, 5000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [tenantId, userId, activeRoomId, socket]);
+
+  const sendMessage = useCallback(async () => {
+    const content = input.trim();
+    if (!content) return;
+    if (socket?.connected) {
+      socket.emit("chat:message", { content });
+    } else {
+      try {
+        const query = activeRoomId ? `?roomId=${encodeURIComponent(activeRoomId)}` : "";
+        const response = await fetch(`/api/chat/messages${query}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to send message");
+        setMessages((prev) => [...prev, data.message]);
+        setIsConnected(true);
+        setConnectionMode("polling");
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to send message");
+      }
+    }
     setInput("");
     inputRef.current?.focus();
-  }, [input, socket]);
+  }, [input, socket, activeRoomId]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -207,7 +259,8 @@ export default function ChatWidget() {
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m 7 7l-7-7m-7 7l7-7" /></svg>
               </button>
             </div>
-            {!isConnected && <p className="text-xs text-red-400 mt-1">Disconnected...</p>}
+            {connectionMode === "disconnected" && <p className="text-xs text-red-400 mt-1">Disconnected. Retrying...</p>}
+            {connectionMode === "polling" && <p className="text-xs text-amber-300 mt-1">Connected using secure fallback polling.</p>}
           </div>
         </div>
       )}
