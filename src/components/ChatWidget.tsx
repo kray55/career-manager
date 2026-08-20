@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { io, Socket } from "socket.io-client";
 import toast from "react-hot-toast";
 
 interface ChatRoom {
@@ -29,9 +28,8 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionMode, setConnectionMode] = useState<"socket" | "polling" | "disconnected">("disconnected");
+  const [connectionMode, setConnectionMode] = useState<"polling" | "disconnected">("disconnected");
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubject, setNotifySubject] = useState("");
   const [showNotify, setShowNotify] = useState(false);
@@ -61,38 +59,12 @@ export default function ChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    if (!tenantId || !userId) return;
-    const s = io({
-      path: "/api/socket",
-      query: { tenantId, userId, userName, roomId: activeRoomId || "" },
-      transports: ["websocket", "polling"],
-      timeout: 5000,
-      reconnectionAttempts: 2,
-    });
-
-    s.on("connect", () => { setIsConnected(true); setConnectionMode("socket"); s.emit("chat:history"); });
-    s.on("disconnect", () => { setIsConnected(false); setConnectionMode("disconnected"); });
-    s.on("connect_error", () => { setIsConnected(false); setConnectionMode("disconnected"); });
-    s.on("chat:history", (data: ChatMessage[]) => setMessages(data || []));
-    s.on("chat:message", (data: ChatMessage) => setMessages((prev) => [...prev, data]));
-    s.on("chat:error", (data: any) => toast.error(data?.message || "Chat error"));
-    s.on("chat:notify:result", (data: any) => {
-      if (data.success) { toast.success("Notification sent!"); setShowNotify(false); setNotifyEmail(""); setNotifySubject(""); }
-      else toast.error(data?.error || "Failed to send");
-    });
-
-    setSocket(s);
-    return () => { s.disconnect(); setSocket(null); };
-  }, [tenantId, userId, userName, activeRoomId]);
-
-  // Vercel API functions do not guarantee a persistent WebSocket process. Polling
-  // keeps rooms usable in Production while Socket.IO is unavailable.
+  // Vercel API functions do not guarantee a persistent WebSocket process. Use
+  // authenticated HTTPS polling directly so Firefox never attempts wss://.
   useEffect(() => {
     if (!tenantId || !userId) return;
     let cancelled = false;
     const loadMessages = async () => {
-      if (socket?.connected) return;
       try {
         const query = activeRoomId ? `?roomId=${encodeURIComponent(activeRoomId)}` : "";
         const response = await fetch(`/api/chat/messages${query}`);
@@ -113,33 +85,29 @@ export default function ChatWidget() {
     loadMessages();
     const timer = window.setInterval(loadMessages, 5000);
     return () => { cancelled = true; window.clearInterval(timer); };
-  }, [tenantId, userId, activeRoomId, socket]);
+  }, [tenantId, userId, activeRoomId]);
 
   const sendMessage = useCallback(async () => {
     const content = input.trim();
     if (!content) return;
-    if (socket?.connected) {
-      socket.emit("chat:message", { content });
-    } else {
-      try {
-        const query = activeRoomId ? `?roomId=${encodeURIComponent(activeRoomId)}` : "";
-        const response = await fetch(`/api/chat/messages${query}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Failed to send message");
-        setMessages((prev) => [...prev, data.message]);
-        setIsConnected(true);
-        setConnectionMode("polling");
-      } catch (error: any) {
-        toast.error(error?.message || "Failed to send message");
-      }
+    try {
+      const query = activeRoomId ? `?roomId=${encodeURIComponent(activeRoomId)}` : "";
+      const response = await fetch(`/api/chat/messages${query}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to send message");
+      setMessages((prev) => [...prev, data.message]);
+      setIsConnected(true);
+      setConnectionMode("polling");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to send message");
     }
     setInput("");
     inputRef.current?.focus();
-  }, [input, socket, activeRoomId]);
+  }, [input, activeRoomId]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -157,14 +125,28 @@ export default function ChatWidget() {
     toast.success("Room created");
   };
 
-  const handleNotify = () => {
-    if (!notifyEmail.trim() || !socket) return;
+  const handleNotify = async () => {
+    if (!notifyEmail.trim()) return;
     const recent = messages.slice(-5).map((m) => `${m.senderName}: ${m.content}`).join("\n");
-    socket.emit("chat:notify", {
-      to: notifyEmail.trim(),
-      subject: notifySubject.trim() || "Chat Notification",
-      body: `Recent messages:\n\n${recent}`,
-    });
+    try {
+      const response = await fetch("/api/email-send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: notifyEmail.trim(),
+          subject: notifySubject.trim() || "Chat Notification",
+          html: `<p>Recent messages:</p><pre>${recent.replace(/[&<>]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[character] || character))}</pre>`,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to send notification");
+      toast.success("Notification sent!");
+      setShowNotify(false);
+      setNotifyEmail("");
+      setNotifySubject("");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to send notification");
+    }
   };
 
   if (!session) return null;
@@ -260,7 +242,7 @@ export default function ChatWidget() {
               </button>
             </div>
             {connectionMode === "disconnected" && <p className="text-xs text-red-400 mt-1">Disconnected. Retrying...</p>}
-            {connectionMode === "polling" && <p className="text-xs text-amber-300 mt-1">Connected using secure fallback polling.</p>}
+            {connectionMode === "polling" && <p className="text-xs text-amber-300 mt-1">Connected securely over HTTPS.</p>}
           </div>
         </div>
       )}
