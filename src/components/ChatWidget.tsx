@@ -19,7 +19,12 @@ interface ChatMessage {
   createdAt: string;
 }
 
-const USER_AVATARS = ["👤", "💼", "🎓", "🧭", "🚀", "🧠", "🛠️", "🌟"];
+const USER_AVATARS = [
+  "👤", "💼", "🎓", "🧭", "🚀", "🧠", "🛠️", "🌟",
+  "👨‍💼", "👩‍💼", "🧑‍💼", "👨‍🎓", "👩‍🎓", "🧑‍🎓", "👩‍💻", "👨‍💻",
+  "🧑‍🚀", "👩‍🔬", "👨‍🔬", "🧑‍🏫", "👩‍⚕️", "👨‍⚕️", "🧑‍⚖️", "🧑‍🎨",
+  "👩‍🍳", "👨‍🍳", "🧑‍🤝‍🧑", "👥"
+];
 const GUEST_AVATARS = ["👋", "🤝", "🗣️", "💬", "🌐", "🙋", "🎙️", "🧑‍💻"];
 
 function avatarIndex(value: string, size: number) {
@@ -250,6 +255,7 @@ export default function ChatWidget() {
           {showAvatarPicker && (
             <div className="px-4 py-3 border-b border-white/10 bg-slate-800/40">
               <p className="text-[11px] font-semibold text-slate-300 mb-2">Your user avatar</p>
+              <p className="text-[10px] text-slate-500 mb-2">Choose from professional and people-focused identities.</p>
               <div className="grid grid-cols-8 gap-1">
                 {USER_AVATARS.map((emoji) => <button key={emoji} onClick={() => chooseAvatar(emoji)} className={`h-8 rounded-lg text-lg ${emoji === avatarEmoji ? "bg-primary-500/30 ring-1 ring-primary-300" : "bg-slate-800 hover:bg-slate-700"}`} title={`Use ${emoji} avatar`}>{emoji}</button>)}
               </div>
