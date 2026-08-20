@@ -126,7 +126,27 @@ export default function AIGenerator({ onGenerated }: AIGeneratorProps) {
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-      <h3 className="text-lg font-semibold text-white mb-4">🤖 AI Document Generator</h3>
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-white">🤖 AI Document Generator</h3>
+          <p className="text-xs text-slate-500 mt-1">Generate resumes, cover letters, summaries, and experience entries.</p>
+        </div>
+        <a
+          href="https://vercel.com/one-techx/career-manager/settings/environment-variables"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-200 text-xs font-medium hover:bg-purple-500/20 transition-colors"
+          title="Open Vercel Production environment variables"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3h7v7m0-7L10 14M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /></svg>
+          Configure AI in Vercel
+        </a>
+      </div>
+
+      <div className="mb-6 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-xs text-slate-300">
+        <p className="font-medium text-amber-200">Production AI setup</p>
+        <p className="mt-1">In Vercel, add <code className="text-purple-200">OPENAI_API_KEY</code> to the <strong>Production</strong> environment, then redeploy. Never paste the secret into this app or into chat.</p>
+      </div>
       
       {/* Type Selector */}
       <div className="flex flex-wrap gap-2 mb-6">
