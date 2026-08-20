@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import toast from "react-hot-toast";
-import { createDocumentClient } from "@/actions/documents";
+import { createDocumentClient } from "@/actions/documents.client";
 
 interface AIGeneratorProps {
   onGenerated?: (docId: string) => void;
