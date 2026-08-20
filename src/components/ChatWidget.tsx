@@ -33,6 +33,11 @@ export default function ChatWidget() {
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubject, setNotifySubject] = useState("");
   const [showNotify, setShowNotify] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteSubject, setInviteSubject] = useState("");
+  const [inviteMessage, setInviteMessage] = useState("");
+  const [inviteSending, setInviteSending] = useState(false);
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [activeRoomId, setActiveRoomId] = useState<string | undefined>();
   const [showRoomForm, setShowRoomForm] = useState(false);
@@ -125,6 +130,34 @@ export default function ChatWidget() {
     toast.success("Room created");
   };
 
+  const sendGuestInvite = async () => {
+    if (!activeRoomId || !inviteEmail.trim() || inviteSending) return;
+    setInviteSending(true);
+    try {
+      const response = await fetch("/api/chat/invites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId: activeRoomId,
+          email: inviteEmail.trim(),
+          subject: inviteSubject.trim(),
+          message: inviteMessage.trim(),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Invitation failed");
+      toast.success("Guest invitation sent");
+      setInviteEmail("");
+      setInviteSubject("");
+      setInviteMessage("");
+      setShowInvite(false);
+    } catch (error: any) {
+      toast.error(error?.message || "Invitation failed");
+    } finally {
+      setInviteSending(false);
+    }
+  };
+
   const handleNotify = async () => {
     if (!notifyEmail.trim()) return;
     const recent = messages.slice(-5).map((m) => `${m.senderName}: ${m.content}`).join("\n");
@@ -183,6 +216,7 @@ export default function ChatWidget() {
             <button onClick={() => setShowNotify(!showNotify)} className="p-1.5 text-slate-500 hover:text-white rounded-lg hover:bg-slate-700 text-xs" title="Notify">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 014.22 0l7.89-5.26M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
             </button>
+            <button onClick={() => setShowInvite(!showInvite)} disabled={!activeRoomId} className="px-2 py-1 text-[10px] text-primary-300 border border-primary-500/30 rounded disabled:opacity-40" title="Invite guest">Invite</button>
           </div>
 
           {showRoomForm && (
@@ -202,6 +236,23 @@ export default function ChatWidget() {
               <button onClick={handleNotify} disabled={!notifyEmail.trim()}
                 className="w-full py-1.5 bg-primary-500/20 text-primary-300 text-sm rounded-lg hover:bg-primary-500/30 border border-primary-500/30 disabled:opacity-50">
                 Send Notification
+              </button>
+            </div>
+          )}
+
+          {showInvite && (
+            <div className="px-4 py-3 border-b border-white/10 bg-primary-950/30 space-y-2">
+              <p className="text-[11px] font-semibold text-primary-200">Guest invitation template</p>
+              <input type="email" placeholder="Guest email" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
+                className="w-full px-3 py-1.5 bg-slate-800 border border-primary-500/20 rounded-lg text-white text-sm placeholder-slate-600 focus:outline-none focus:border-primary-500/50" />
+              <input type="text" placeholder="Subject (optional)" value={inviteSubject} onChange={e => setInviteSubject(e.target.value)}
+                className="w-full px-3 py-1.5 bg-slate-800 border border-primary-500/20 rounded-lg text-white text-sm placeholder-slate-600 focus:outline-none focus:border-primary-500/50" />
+              <textarea rows={3} placeholder="Add a bespoke message for your guest..." value={inviteMessage} onChange={e => setInviteMessage(e.target.value)}
+                className="w-full px-3 py-1.5 bg-slate-800 border border-primary-500/20 rounded-lg text-white text-sm placeholder-slate-600 focus:outline-none focus:border-primary-500/50 resize-none" />
+              <p className="text-[10px] text-slate-500">The secure room link and 7-day expiry notice are added automatically.</p>
+              <button onClick={sendGuestInvite} disabled={!inviteEmail.trim() || inviteSending || !activeRoomId}
+                className="w-full py-1.5 bg-primary-500/20 text-primary-300 text-sm rounded-lg hover:bg-primary-500/30 border border-primary-500/30 disabled:opacity-50">
+                {inviteSending ? "Sending..." : "Send Guest Invitation"}
               </button>
             </div>
           )}

@@ -15,6 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const roomId = typeof req.body?.roomId === "string" ? req.body.roomId : "";
   const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
+  const subject = typeof req.body?.subject === "string" ? req.body.subject.trim().slice(0, 998) : "";
+  const message = typeof req.body?.message === "string" ? req.body.message.trim().slice(0, 4000) : "";
   if (!roomId || !emailPattern.test(email)) return res.status(400).json({ error: "Room and valid guest email are required" });
 
   try {
@@ -29,11 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const baseUrl = process.env.NEXTAUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
     const link = `${baseUrl}/room-invite/${invite.token}`;
+    const safe = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character] || character));
+    const finalSubject = subject || `Invitation to join ${room.name}`;
+    const bespokeMessage = message || `You have been invited to join ${room.name} in Career Manager.`;
     const result = await sendEmail({
       to: email,
-      subject: `Invitation to join ${room.name}`,
-      html: `<p>You have been invited to join <strong>${room.name}</strong> in Career Manager.</p><p><a href="${link}">Join the room</a></p><p>This invitation expires in 7 days.</p>`,
-      text: `You have been invited to join ${room.name} in Career Manager. Join here: ${link}. This invitation expires in 7 days.`,
+      subject: finalSubject,
+      html: `<p>${safe(bespokeMessage).replace(/\\n/g, "<br />")}</p><p><a href="${safe(link)}">Join the room</a></p><p>This invitation expires in 7 days.</p>`,
+      text: `${bespokeMessage}\n\nJoin the room: ${link}\n\nThis invitation expires in 7 days.`,
     });
 
     if (!result.success) return res.status(502).json({ error: result.error || "Invitation email failed", inviteId: invite.id });
