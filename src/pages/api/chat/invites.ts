@@ -29,7 +29,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data: { tenantId: user.tenantId, roomId, createdById: user.id, email, token, expiresAt },
     });
 
-    const baseUrl = process.env.NEXTAUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    const configuredUrl = process.env.PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "";
+    const baseUrl = configuredUrl && !configuredUrl.includes("career-manager.vercel.app")
+      ? configuredUrl.replace(/\/$/, "")
+      : "https://career-manager-iota.vercel.app";
     const link = `${baseUrl}/room-invite/${invite.token}`;
     const safe = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character] || character));
     const finalSubject = subject || `Invitation to join ${room.name}`;
